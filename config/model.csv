@@ -1,0 +1,2 @@
+graph default min time,graph default max time,model dat files,bundle listing,custom constants,custom lookups,custom outputs
+2017,2028,test4/model/DATA.dat;test4/model/Parameters.dat,FALSE,FALSE,FALSE,FALSE

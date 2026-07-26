@@ -1,0 +1,11 @@
+artifacts
+baselines
+bundles
+node_modules
+sde-prep
+*.vdf
+*.vdfx
+*.3vmfx
+packages/app.zip
+packages/core.zip
+.claude/settings.local.json

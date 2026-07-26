@@ -1,0 +1,71 @@
+:COMSYS After 26330 simulations
+:COMSYS Best payoff is -254.018
+:COMSYS Normally terminated optimization
+:OPTIMIZER=Powell
+:SENSITIVITY=Off
+:MULTIPLE_START=RRandom
+:RANDOM_NUMBER=Default
+:OUTPUT_LEVEL=On
+:TRACE=Off
+:MAX_ITERATIONS=1000
+:RESTART_MAX=2
+:PASS_LIMIT=2
+:FRACTIONAL_TOLERANCE=1e-05
+:TOLERANCE_MULTIPLIER=21
+:ABSOLUTE_TOLERANCE=1
+:SCALE_ABSOLUTE=1
+:VECTOR_POINTS=25
+:MCINITMETHOD=0
+:MCPAYOFFTYPE=0
+:MCRECORD=0
+:MCSCHEDULE=0
+:MCLIMIT=0
+:MCBURNIN=0
+:MCNCHAINS=2
+:MCOUTLIER=0.05
+:MCGAMMA=1
+:MCEPSILON=0.01
+:MCDELTA=0.0001
+:MCJUMP=0.05
+:MCUPDATEPAIRS=2
+:MCXOVER=0.2
+:MCTEMP=1
+:MCFTEMP=1
+:MCCOOLING=1000
+1000 <= population adjustment  = 284856  <= 5e+08
+1e+06 <= initial population at risk of developing NCD[HTN] = 5.58723e+06  <= 1e+08
+1e+06 <= initial population at risk of developing NCD[DIA] = 6.38992e+06  <= 1e+08
+10000 <= initial undiagnosed uncontrolled NCD[HTN] = 1.01634e+06  <= 1e+07
+1000 <= initial diagnosed not controlled NCD[HTN] = 346669  <= 1e+07
+0.01 <= NCD development rate[HTN] = 0.0100004  <= 0.1
+0.0001 <= base NCD screen rate[HTN] = 0.00838295  <= 0.1
+0.0001 <= treated NCD death risk relative to untreated[HTN] = 0.0549831  <= 1
+0.0001 <= discontinuation rate[HTN] = 0.0121144  <= 0.1
+0.0001 <= strength coverage on screen[HTN] = 0.977838  <= 10
+1000 <= initial undiagnosed uncontrolled NCD[DIA] = 318506  <= 1e+07
+100 <= initial diagnosed not controlled NCD[DIA] = 226609  <= 1e+07
+0.001 <= NCD development rate[DIA] = 0.00307583  <= 0.1
+0.0001 <= base tx enrollment rate post screening[DIA] = 0.0214271  <= 1
+0.0001 <= base tx enrollment rate post screening[HTN] = 0.0224507  <= 1
+1 <= relative death risk for NCD[DIA] = 1.38813  <= 10
+1 <= relative death risk for NCD[HTN] = 10  <= 10
+0.001 <= treated NCD death risk relative to untreated[DIA] = 0.470179  <= 1
+0.0001 <= discontinuation rate[DIA] = 0.00736248  <= 0.5
+1e-05 <= base death rate  = 0.000284309  <= 0.001
+0.001 <= strength coverage on screen[DIA] = 0.784155  <= 10
+0.001 <= strength coverage on health utilization  = 0.001  <= 10
+0.001 <= strength of provider availability on tx starts  = 10  <= 10
+0.001 <= base positive NCD fraction for screened people[HTN] = 0.475122  <= 0.5
+0.001 <= base positive NCD fraction for screened people[DIA] = 0.144383  <= 0.5
+0.001 <= base other health service utilization  = 5.42913  <= 10
+1 <= base average fee per person  = 747.154  <= 2000
+1 <= base average care cost per person  = 386.671  <= 2000
+1000 <= other public funding rate  = 1.44157e+09  <= 1e+10
+1e+06 <= initial average annual IR   = 9.39916e+06  <= 1e+10
+1000 <= initial CBHI revenue  = 8.40407e+09  <= 1e+10
+10 <= provider adjustment rate  = 1697.81  <= 10000
+100 <= initial providers  = 1247.7  <= 100000
+0.1 <= base medication utilization rate  = 0.221357  <= 1
+0.1 <= base medication restocking rate  = 0.233523  <= 1
+0.1 <= CBHI reimbursement approval fraction   = 0.599788  <= 1
+1 <= subsidies per fee waivered   = 708.508  <= 10000
