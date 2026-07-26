@@ -4,16 +4,27 @@ import './global.css'
 
 import type { Config as CoreConfig } from '@core'
 
+import { calendarMode } from '@shared/calendar'
+
 import type { AppViewModel } from './app-vm'
 import { createAppViewModel } from './app-vm'
 
 import InputRow from './components/inputs/input-row.svelte'
 import SelectableGraph from './components/graphs/selectable-graph.svelte'
 import Selector from './components/selector/selector.svelte'
+import type { SelectorViewModel } from './components/selector/selector-vm'
 
 export let coreConfig: CoreConfig
 
 let viewModel: AppViewModel
+
+const calendarSelector: SelectorViewModel = {
+  options: [
+    { value: 'ethiopian', stringKey: 'Ethiopian' },
+    { value: 'gregorian', stringKey: 'Gregorian (approx.)' }
+  ],
+  selectedValue: calendarMode
+}
 
 $: scenarios = viewModel?.scenarios
 $: selectedLayoutOption = viewModel?.selectedLayoutOption
@@ -31,7 +42,13 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 {:then}
   <div class="app-container">
     <div class="header">
-      <div class="app-title">Health Care Financing and NCD Treatment in Ethiopia</div>
+      <div class="header-top">
+        <div class="app-title">Health Care Financing and NCD Treatment in Ethiopia</div>
+        <div class="calendar-selector">
+          <div class="calendar-label">Calendar:</div>
+          <Selector viewModel={calendarSelector} />
+        </div>
+      </div>
       <div class="app-description">
         This dashboard presents projected hypertension and diabetes treatment outcomes in Ethiopia&rsquo;s Amhara
         region. Use the sliders to explore how changes in CBHI enrollment, fee-waiver coverage, screening, provider
@@ -116,11 +133,30 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   gap: 6px
   flex-shrink: 0
 
+.header-top
+  display: flex
+  flex-direction: row
+  justify-content: space-between
+  align-items: baseline
+  gap: 16px
+
 .app-title
   font-size: 1.45em
   font-weight: 700
   color: #1f3a4d
   letter-spacing: .01em
+
+.calendar-selector
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: 8px
+  flex-shrink: 0
+
+.calendar-label
+  font-size: 1rem
+  font-weight: 700
+  color: #1f3a4d
 
 .app-description
   font-size: .85em

@@ -3,6 +3,8 @@ import { Chart } from 'chart.js'
 
 import type { GraphSpec, OutputVarId, Series, StringKey } from '@core'
 
+import { calendarMode, ETHIOPIAN_TO_GREGORIAN_OFFSET } from '@shared/calendar'
+
 import type { GraphViewModel } from './graph-vm'
 
 /**
@@ -135,7 +137,11 @@ function lineChartJsConfig(viewModel: GraphViewModel, data: ChartData): ChartCon
               maxTicksLimit: 6,
               maxRotation: 0,
               min: spec.xMin,
-              max: spec.xMax
+              max: spec.xMax,
+              callback: value => {
+                const offset = calendarMode.get() === 'gregorian' ? ETHIOPIAN_TO_GREGORIAN_OFFSET : 0
+                return Math.round((value as number) + offset)
+              }
             }
           }
         ],

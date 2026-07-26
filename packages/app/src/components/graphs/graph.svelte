@@ -2,6 +2,8 @@
 <script lang="ts">
 import { onMount } from 'svelte'
 
+import { calendarMode } from '@shared/calendar'
+
 import type { GraphViewOptions } from './graph-view'
 import { GraphView } from './graph-view'
 import type { GraphViewModel } from './graph-vm'
@@ -26,6 +28,11 @@ $: if (graphView && graphView.viewModel.spec.id !== viewModel.spec.id) {
 
 // When the data changes, update the view
 $: if ($dataChanged) {
+  graphView?.updateData(/*animated=*/ false)
+}
+
+// When the calendar display mode changes, refresh the x-axis tick labels
+$: if ($calendarMode) {
   graphView?.updateData(/*animated=*/ false)
 }
 
