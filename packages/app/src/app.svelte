@@ -63,7 +63,9 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
           <div class="scenario-container">
             {#if scenario.sliders.length > 0}
               <div class="scenario-header">
-                <div class="scenario-name">{scenario.name}</div>
+                {#if scenario.name}
+                  <div class="scenario-name">{scenario.name}</div>
+                {/if}
                 <button on:click={() => scenario.reset()}>Reset</button>
               </div>
               {#each scenario.sliderGroups as group}
@@ -119,10 +121,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .app-container
   display: flex
   flex-direction: column
-  gap: 16px
+  gap: 12px
   box-sizing: border-box
   height: 100vh
-  padding: 24px
+  padding: 18px 24px
   background-color: #fff
 
   @media (max-width: 800px)
@@ -262,30 +264,31 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .scenario-container
   display: flex
   flex-direction: column
-  padding: 16px
+  flex-shrink: 0
+  padding: 12px 16px
   border-radius: 10px
   background-color: #eef2f6
-  min-height: 0
 
 .slider-section
-  margin-top: 20px
+  margin-top: 12px
 
   &:first-child
     margin-top: 0
 
 .slider-section-title
   font-weight: 700
-  font-size: .95em
+  font-size: .9em
   color: #1f3a4d
-  padding-bottom: 6px
-  margin-bottom: 6px
+  padding-bottom: 4px
+  margin-bottom: 2px
   border-bottom: 1px solid #c3d0da
 
 .scenario-header
   display: flex
   flex-direction: row
-  justify-content: space-between
+  justify-content: flex-end
   align-items: baseline
+  gap: 10px
   margin-bottom: 4px
 
 .scenario-name

@@ -196,13 +196,21 @@ function createGraphViewModel(appModel: AppModel, graphSpec: GraphSpec): GraphVi
 function format(num: number, formatString: string) {
   // TODO: You could use d3-format or another similar formatting library
   // here.  For now, this is set up to handle a small subset of formats
-  // used in the example config files.
+  // used in the example config files.  Regardless of the number of decimal
+  // places, values are shown with thousands separators (e.g. "12,345").
   switch (formatString) {
     case '.1f':
-      return num.toFixed(1)
+      return num.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })
     case '.2f':
-      return num.toFixed(2)
+      return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    case 'percent':
+      // The underlying data is a fraction (e.g. 0.35); display it as a whole
+      // percentage number (e.g. "35") without a trailing "%" sign, since the
+      // graph's own axis label already conveys that the units are "Percent".
+      return (num * 100).toLocaleString('en-US', { maximumFractionDigits: 0 })
     default:
-      return num.toString()
+      // Preserve the value's own natural precision (as `toString()` did before),
+      // just with thousands separators added for large numbers.
+      return num.toLocaleString('en-US', { maximumFractionDigits: 10 })
   }
 }

@@ -39,7 +39,7 @@ function formatValue(value: number): string {
 <!-- STYLE -->
 <style lang="sass">
 .input-row-container
-  margin: .5rem 0
+  margin: .3rem 0
 
 .spacer
   flex: 1
