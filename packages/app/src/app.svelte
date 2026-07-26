@@ -127,6 +127,12 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   padding: 24px
   background-color: #fff
 
+  @media (max-width: 800px)
+    height: auto
+    min-height: 100vh
+    padding: 12px
+    gap: 12px
+
 .header
   display: flex
   flex-direction: column
@@ -140,11 +146,18 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   align-items: baseline
   gap: 16px
 
+  @media (max-width: 800px)
+    flex-wrap: wrap
+    gap: 8px
+
 .app-title
   font-size: 1.45em
   font-weight: 700
   color: #1f3a4d
   letter-spacing: .01em
+
+  @media (max-width: 800px)
+    font-size: 1.15em
 
 .calendar-selector
   display: flex
@@ -171,6 +184,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   flex: 1
   min-height: 0
 
+  @media (max-width: 800px)
+    flex-direction: column
+    flex: none
+
 .graphs-panel
   display: flex
   flex-direction: column
@@ -179,12 +196,17 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   min-width: 0
   min-height: 0
 
+  @media (max-width: 800px)
+    flex: none
+    min-height: 400px
+
 .options-container
   display: flex
   flex-direction: row
   align-items: center
   gap: 10px
   flex-shrink: 0
+  flex-wrap: wrap
 
 .layout-label
   font-size: 1rem
@@ -202,6 +224,12 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     grid-template-columns: 1fr 1fr
     grid-template-rows: 1fr 1fr
 
+  @media (max-width: 800px)
+    flex: none
+    &.layout_1_2, &.layout_2_2
+      grid-template-columns: 1fr
+      grid-template-rows: none
+
 .selectable-graph-container
   display: flex
   box-sizing: border-box
@@ -209,6 +237,9 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   height: 100%
   min-height: 0
   padding: 6px
+
+  @media (max-width: 800px)
+    height: 320px
 
 .sliders-panel
   display: flex
@@ -219,6 +250,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   min-height: 0
   overflow-y: auto
   font-size: .85em
+
+  @media (max-width: 800px)
+    width: 100%
+    overflow-y: visible
 
 .sliders-panel-title
   font-size: 1rem
@@ -239,6 +274,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   flex-direction: row
   gap: 20px
   min-height: 0
+
+  @media (max-width: 800px)
+    flex-direction: column
+    gap: 0
 
 .slider-group
   display: flex
