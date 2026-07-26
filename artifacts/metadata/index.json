@@ -1,0 +1,20 @@
+[
+  {
+    "name": "main",
+    "path": "branch/main",
+    "lastModified": "2026-07-26T17:10:28.254Z",
+    "products": {
+      "app": {
+        "displayName": "app",
+        "path": "branch/main/app"
+      },
+      "checkReport": {
+        "displayName": "checks",
+        "path": "branch/main/extras/check-compare-to-base"
+      },
+      "checkBundle": {
+        "path": "branch/main/extras/check-bundle.js"
+      }
+    }
+  }
+]
