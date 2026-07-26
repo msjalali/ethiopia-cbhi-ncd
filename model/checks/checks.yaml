@@ -6,14 +6,17 @@
 #   https://github.com/climateinteractive/SDEverywhere/wiki/Testing-and-Comparing-Your-Model
 #
 
-# NOTE: The following is an example of a simple check just to get you started.
-# Replace "Some output" with the name of some variable you'd like to test.
-- describe: Some output
-  tests:
-    - it: should be > 0 for all input scenarios
-      scenarios:
-        - preset: matrix
-      datasets:
-        - name: Some output
-      predicates:
-        - gt: 0
+# NOTE: No checks are defined yet. Add entries here to exercise your model under
+# different input scenarios, referencing real variable names from your model, e.g.:
+#
+# - describe: Fraction in treatment[HTN]
+#   tests:
+#     - it: should be between 0 and 1 for all input scenarios
+#       scenarios:
+#         - preset: matrix
+#       datasets:
+#         - name: Fraction in treatment[HTN]
+#       predicates:
+#         - gt: 0
+#         - lt: 1
+[]
