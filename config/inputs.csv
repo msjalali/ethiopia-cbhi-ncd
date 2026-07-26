@@ -1,5 +1,5 @@
 id,input type,viewid,varname,label,view level,group name,slider min,slider max,slider/switch default,slider step,units,format,reversed,range 2 start,range 3 start,range 4 start,range 5 start,range 1 label,range 2 label,range 3 label,range 4 label,range 5 label,enabled value,disabled value,controlled input ids,listing label,description
-1,slider,view1,enrollment strategy strength,Change in Annual New CBHI Enrollment,,Sliders,-1,6,0,0.1,,,,,,,,,,,,,,,,,
+1,slider,view1,enrollment strategy strength,Change in Annual New CBHI Enrollment,,Sliders,-1,8,0,0.1,,,,,,,,,,,,,,,,,
 2,slider,view1,fee waiver strategy strength,Change in Annual New Fee-Waiver Beneficiaries,,Sliders,-1,1,0,0.1,,,,,,,,,,,,,,,,,
 3,slider,view1,delay reduction strategy strength,Change in Reimbursement Payment Delay,,Sliders,-0.5,0.5,0,0.1,,,,,,,,,,,,,,,,,
 4,slider,view1,reimbursement strategy strength,Change in Reimbursement Approval Rate,,Sliders,-1,1,0,0.1,,,,,,,,,,,,,,,,,
