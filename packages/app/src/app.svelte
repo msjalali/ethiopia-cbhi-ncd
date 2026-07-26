@@ -66,18 +66,16 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
                 <div class="scenario-name">{scenario.name}</div>
                 <button on:click={() => scenario.reset()}>Reset</button>
               </div>
-              <div class="slider-groups">
-                <div class="slider-group">
-                  {#each scenario.sliders.slice(0, 2) as slider}
+              {#each scenario.sliderGroups as group}
+                <div class="slider-section">
+                  {#if group.name}
+                    <div class="slider-section-title">{group.name}</div>
+                  {/if}
+                  {#each group.sliders as slider}
                     <InputRow input={slider} />
                   {/each}
                 </div>
-                <div class="slider-group">
-                  {#each scenario.sliders.slice(2) as slider}
-                    <InputRow input={slider} />
-                  {/each}
-                </div>
-              </div>
+              {/each}
             {:else}
               <div class="empty-config-message">
                 No sliders configured. You can edit 'config/inputs.csv' to get started.
@@ -269,21 +267,19 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   background-color: #eef2f6
   min-height: 0
 
-.slider-groups
-  display: flex
-  flex-direction: row
-  gap: 20px
-  min-height: 0
+.slider-section
+  margin-top: 20px
 
-  @media (max-width: 800px)
-    flex-direction: column
-    gap: 0
+  &:first-child
+    margin-top: 0
 
-.slider-group
-  display: flex
-  flex-direction: column
-  flex: 1
-  min-width: 0
+.slider-section-title
+  font-weight: 700
+  font-size: .95em
+  color: #1f3a4d
+  padding-bottom: 6px
+  margin-bottom: 6px
+  border-bottom: 1px solid #c3d0da
 
 .scenario-header
   display: flex

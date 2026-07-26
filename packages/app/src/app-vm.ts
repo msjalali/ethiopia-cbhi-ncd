@@ -23,7 +23,30 @@ function getFixedVarNames(csv: string): Set<string> {
   return new Set(names)
 }
 
+/**
+ * Build a map from varname to its "group name" column value, for every
+ * non-"Fixed" row.  Used to cluster sliders into labeled sub-sections in
+ * the UI, driven entirely by the `group name` column in `config/inputs.csv`.
+ */
+function getVarGroupNames(csv: string): Map<string, string> {
+  const [headerLine, ...rows] = csv.trim().split(/\r?\n/)
+  const headers = headerLine.split(',')
+  const varnameIdx = headers.indexOf('varname')
+  const groupIdx = headers.indexOf('group name')
+  const map = new Map<string, string>()
+  for (const row of rows) {
+    const cols = row.split(',')
+    const groupName = cols[groupIdx]?.trim()
+    const varName = cols[varnameIdx]?.trim()
+    if (varName && groupName && groupName !== 'Fixed') {
+      map.set(varName, groupName)
+    }
+  }
+  return map
+}
+
 const HIDDEN_VAR_NAMES = getFixedVarNames(inputsCsvRaw)
+const VAR_GROUP_NAMES = getVarGroupNames(inputsCsvRaw)
 import type { GraphViewModel } from '@components/graphs/graph-vm'
 import { SelectableGraphViewModel } from '@components/graphs/selectable-graph-vm'
 import type { SelectorOption, SelectorViewModel } from '@components/selector/selector-vm'
@@ -32,15 +55,45 @@ export interface LayoutOption extends SelectorOption {
   maxVisible: number
 }
 
+export interface SliderGroup {
+  name: string
+  sliders: WritableSliderInput[]
+}
+
 export class ScenarioViewModel {
+  public readonly sliderGroups: SliderGroup[]
+
   constructor(
     public readonly name: string,
     public readonly sliders: WritableSliderInput[]
-  ) {}
+  ) {
+    this.sliderGroups = groupSliders(sliders)
+  }
 
   reset() {
     this.sliders.forEach(slider => slider.reset())
   }
+}
+
+/**
+ * Cluster the given sliders into groups, in the order the groups first
+ * appear, based on each slider's varname mapping to a "group name" in
+ * `config/inputs.csv`.
+ */
+function groupSliders(sliders: WritableSliderInput[]): SliderGroup[] {
+  const groups: SliderGroup[] = []
+  const groupsByName = new Map<string, SliderGroup>()
+  for (const slider of sliders) {
+    const groupName = VAR_GROUP_NAMES.get(slider.spec.varName ?? '') ?? ''
+    let group = groupsByName.get(groupName)
+    if (!group) {
+      group = { name: groupName, sliders: [] }
+      groupsByName.set(groupName, group)
+      groups.push(group)
+    }
+    group.sliders.push(slider)
+  }
+  return groups
 }
 
 export async function createAppViewModel(coreConfig: CoreConfig): Promise<AppViewModel> {

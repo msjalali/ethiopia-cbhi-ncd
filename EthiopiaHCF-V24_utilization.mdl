@@ -40,7 +40,7 @@ strategy to increase reimbursement=
 	~		|
 
 strategy to decrease reimbursement delay=
-	1-STEP(delay reduction strategy strength*beta, delay reduction strategy start year )
+	STEP(delay reduction strategy strength*beta, delay reduction strategy start year )+1
 	~	Dmnl
 	~		|
 
