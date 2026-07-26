@@ -87,6 +87,26 @@ jobs:
         if: steps.check-deploy.outputs.products_updated == 'true'
         run: git checkout artifacts
 
+      - name: Redirect site root to the dashboard app
+        if: steps.check-deploy.outputs.products_updated == 'true'
+        run: |
+          # The deploy plugin regenerates a "Branch Builds" index page at the site root on
+          # every deploy (useful for multi-branch projects), but for this single-branch
+          # dashboard we want visitors landing on the bare URL to go straight to the app.
+          cat > artifacts/index.html << 'HTML'
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="UTF-8" />
+              <meta http-equiv="refresh" content="0; url=latest/" />
+              <title>Ethiopia HCF Utilization Model</title>
+            </head>
+            <body>
+              <p>Redirecting to <a href="latest/">the dashboard</a>&hellip;</p>
+            </body>
+          </html>
+          HTML
+
       - name: Set up GitHub Pages
         if: steps.check-deploy.outputs.products_updated == 'true'
         uses: actions/configure-pages@v5
