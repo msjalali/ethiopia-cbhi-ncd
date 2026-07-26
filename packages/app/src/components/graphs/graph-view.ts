@@ -213,6 +213,10 @@ function createLineChartJsData(spec: GraphSpec): ChartData {
       }
     }
 
+    // Draw the reference/baseline line thinner than the other lines so it's
+    // easier to visually distinguish it from the (scenario) line(s) being compared
+    chartDataset.borderWidth = spec.datasets[varIndex].externalSourceName === 'Ref' ? 1.5 : 3
+
     chartDataset.pointHitRadius = 3
     chartDataset.pointHoverRadius = 0
 

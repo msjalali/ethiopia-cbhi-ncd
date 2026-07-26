@@ -1,9 +1,8 @@
-import { derived, get, writable, type Readable } from 'svelte/store'
+import { get, writable, type Readable } from 'svelte/store'
 
 import type { Config as CoreConfig, GraphSpec, SourceName } from '@core'
 
 import { _ } from '@shared/i18n'
-import { syncWritable } from '@shared/stores'
 
 import { type AppModel, type AppModelContext, createAppModel } from '@model/app-model'
 import type { WritableSliderInput } from '@model/app-model-inputs'
@@ -49,11 +48,6 @@ const HIDDEN_VAR_NAMES = getFixedVarNames(inputsCsvRaw)
 const VAR_GROUP_NAMES = getVarGroupNames(inputsCsvRaw)
 import type { GraphViewModel } from '@components/graphs/graph-vm'
 import { SelectableGraphViewModel } from '@components/graphs/selectable-graph-vm'
-import type { SelectorOption, SelectorViewModel } from '@components/selector/selector-vm'
-
-export interface LayoutOption extends SelectorOption {
-  maxVisible: number
-}
 
 export interface SliderGroup {
   name: string
@@ -105,8 +99,6 @@ export async function createAppViewModel(coreConfig: CoreConfig): Promise<AppVie
 }
 
 export class AppViewModel {
-  public readonly layoutSelector: SelectorViewModel
-  public readonly selectedLayoutOption: Readable<LayoutOption>
   public readonly graphContainers: SelectableGraphViewModel[]
   public readonly scenarios: Readable<ScenarioViewModel[]>
 
@@ -114,8 +106,8 @@ export class AppViewModel {
     const graphSpecs = [...appModel.coreConfig.graphs.values()]
     const graphViewModels = graphSpecs.map(graphSpec => createGraphViewModel(appModel, graphSpec))
 
-    // The UI allows the user to choose different graph layouts.  For now, add
-    // enough graph containers to support up to 4 graphs at a time.
+    // Always show up to 4 graphs: the first 2 are fixed, the remaining 2 are
+    // selectable from the rest of the configured graphs.
     const maxVisibleGraphs = Math.min(4, graphSpecs.length)
     const numFixedGraphs = Math.min(2, graphSpecs.length)
     const fixedGraphIds = new Set(graphViewModels.slice(0, numFixedGraphs).map(graph => graph.spec.id))
@@ -125,25 +117,6 @@ export class AppViewModel {
       const excludedGraphIds = i >= numFixedGraphs ? fixedGraphIds : undefined
       this.graphContainers.push(new SelectableGraphViewModel(graphViewModels, i, graphId, excludedGraphIds))
     }
-
-    // Add the layout options
-    const initialLayout = import.meta.hot?.data?.initialLayout || 'layout_1_2'
-    const layoutOptions: LayoutOption[] = [
-      { value: 'layout_1_2', stringKey: '2', maxVisible: 2 },
-      { value: 'layout_2_2', stringKey: '4', maxVisible: 4 }
-    ]
-    this.layoutSelector = {
-      options: layoutOptions,
-      selectedValue: syncWritable(initialLayout),
-      onUserChange: layout => {
-        if (import.meta.hot) {
-          import.meta.hot.data.initialLayout = layout
-        }
-      }
-    }
-    this.selectedLayoutOption = derived(this.layoutSelector.selectedValue, $selectedLayout => {
-      return layoutOptions.find(option => option.value === $selectedLayout)
-    })
 
     // Create the scenario view models
     const scenarios: ScenarioViewModel[] = []

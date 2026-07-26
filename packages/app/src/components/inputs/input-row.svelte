@@ -6,6 +6,8 @@ import Slider from './slider.svelte'
 
 export let input: WritableSliderInput
 
+let showDescription = false
+
 // Format the slider value
 function formatValue(value: number): string {
   // TODO: Exercise for the reader: use d3-format or similar to format the slider value
@@ -25,12 +27,23 @@ function formatValue(value: number): string {
   <div class="label-row">
     <div class="label">{@html $_(input.spec.labelKey)}</div>
     {#if input.spec.descriptionKey}
-      <div class="info-icon" title={$_(input.spec.descriptionKey)}>?</div>
+      <button
+        type="button"
+        class="info-icon"
+        aria-label="More info"
+        aria-expanded={showDescription}
+        on:click={() => (showDescription = !showDescription)}
+      >
+        ?
+      </button>
     {/if}
     <div class="spacer"></div>
     <div class="value">{formatValue($input)}</div>
     <div class="units">{@html $_(input.spec.unitsKey)}</div>
   </div>
+  {#if showDescription && input.spec.descriptionKey}
+    <div class="description">{$_(input.spec.descriptionKey)}</div>
+  {/if}
   <div class="slider-row">
     <Slider {input} />
   </div>
@@ -56,16 +69,34 @@ function formatValue(value: number): string {
   display: flex
   align-items: center
   justify-content: center
-  width: 14px
-  height: 14px
+  width: 18px
+  height: 18px
+  padding: 0
+  margin: 0
   border-radius: 50%
   border: 1px solid #8a9aa8
+  background: none
   color: #5c6b77
-  font-size: .65em
+  font-size: .7em
   font-weight: 700
   line-height: 1
-  cursor: help
+  font-family: inherit
+  cursor: pointer
   flex-shrink: 0
+  -webkit-tap-highlight-color: transparent
+
+  &:hover, &:focus-visible, &[aria-expanded='true']
+    background-color: #dce5ec
+    border-color: #5c6b77
+
+.description
+  font-size: .85em
+  color: #5c6b77
+  background-color: #dfe7ed
+  border-radius: 6px
+  padding: 6px 8px
+  margin: 2px 0 4px 0
+  line-height: 1.35
 
 .slider-row
   position: relative

@@ -1,11 +1,11 @@
 id,input type,viewid,varname,label,view level,group name,slider min,slider max,slider/switch default,slider step,units,format,reversed,range 2 start,range 3 start,range 4 start,range 5 start,range 1 label,range 2 label,range 3 label,range 4 label,range 5 label,enabled value,disabled value,controlled input ids,listing label,description
 1,slider,view1,enrollment strategy strength,Change in annual new CBHI enrollment,,Coverage changes,-1,8,0,0.1,,percent,,,,,,,,,,,,,,,How much annual new CBHI enrollment changes relative to the baseline trend.
-2,slider,view1,fee waiver strategy strength,Change in annual new fee-waiver beneficiaries,,Coverage changes,-1,1,0,0.1,,percent,,,,,,,,,,,,,,,How much annual new fee-waiver beneficiary enrollment changes relative to the baseline trend.
+2,slider,view1,fee waiver strategy strength,Change in annual new fee-waiver beneficiaries,,Coverage changes,-1,8,0,0.1,,percent,,,,,,,,,,,,,,,How much annual new fee-waiver beneficiary enrollment changes relative to the baseline trend.
 3,slider,view1,delay reduction strategy strength,Change in reimbursement payment delay,,Reimbursement operationalization,-0.5,0.5,0,0.1,,percent,,,,,,,,,,,,,,,How much the reimbursement payment delay changes relative to the baseline; negative values mean a shorter delay.
 4,slider,view1,reimbursement strategy strength,Change in reimbursement approval rate,,Reimbursement operationalization,-1,1,0,0.1,,percent,,,,,,,,,,,,,,,How much the CBHI reimbursement approval rate changes relative to the baseline.
 5,slider,view1,provider strategy strength,Change in annual net provider additions,,Care capacity,-1,1,0,0.1,,percent,,,,,,,,,,,,,,,How much the annual net addition of healthcare providers changes relative to the baseline.
 6,slider,view1,restock strategy strength,Change in facility medication restocking rate,,Care capacity,-1,1,0,0.1,,percent,,,,,,,,,,,,,,,How much the facility medication restocking rate changes relative to the baseline.
-7,slider,view1,screen strategy strength,Change in NCD screening rate,,Screening,-1,1,0,0.1,,percent,,,,,,,,,,,,,,,How much the NCD screening rate changes relative to the baseline.
+7,slider,view1,screen strategy strength,Change in NCD screening rate,,Screening,-0.5,1,0,0.1,,percent,,,,,,,,,,,,,,,How much the NCD screening rate changes relative to the baseline.
 ,,,,,,,,,,,,,,,,,,,,,,,,,,,
 11,slider,view1,population adjustment,population adjustment,,Fixed,1000,500000000,284856,5000000,,,,,,,,,,,,,,,,,
 12,slider,view1,initial population at risk of developing NCD[HTN],initial population at risk of developing NCD[HTN],,Fixed,1000000,100000000,5587230,1000000,,,,,,,,,,,,,,,,,

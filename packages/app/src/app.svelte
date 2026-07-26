@@ -27,8 +27,8 @@ const calendarSelector: SelectorViewModel = {
 }
 
 $: scenarios = viewModel?.scenarios
-$: selectedLayoutOption = viewModel?.selectedLayoutOption
-$: visibleGraphContainers = viewModel?.graphContainers.slice(0, $selectedLayoutOption.maxVisible)
+$: primaryGraphContainers = viewModel?.graphContainers.slice(0, 2) ?? []
+$: otherGraphContainers = viewModel?.graphContainers.slice(2, 4) ?? []
 
 // Wait for the view model to be loaded before we render the app
 const viewReady = createAppViewModel(coreConfig).then(result => {
@@ -52,7 +52,8 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
       <div class="app-description">
         This dashboard presents projected hypertension and diabetes treatment outcomes in Ethiopia&rsquo;s Amhara
         region. Use the sliders to explore how changes in CBHI enrollment, fee-waiver coverage, screening, provider
-        and medication capacity, and reimbursement policies may affect treatment over time.
+        and medication capacity, and reimbursement policies may affect treatment over time. The black line shows the
+        baseline (no change).
       </div>
     </div>
 
@@ -88,18 +89,26 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
       </div>
 
       <div class="graphs-panel">
-        <div class="options-container">
-          <div class="layout-label">Max Visible Graphs:</div>
-          <Selector viewModel={viewModel.layoutSelector} />
-        </div>
-
-        {#if visibleGraphContainers.length > 0}
-          <div class="graphs-container {$selectedLayoutOption.value}">
-            {#each visibleGraphContainers as graphContainer, i}
-              <div class="selectable-graph-container">
-                <SelectableGraph viewModel={graphContainer} showSelector={i >= 2} />
-              </div>
-            {/each}
+        {#if primaryGraphContainers.length > 0}
+          <div class="graph-section">
+            <div class="graph-section-title">Primary outcomes</div>
+            <div class="graph-row">
+              {#each primaryGraphContainers as graphContainer}
+                <div class="selectable-graph-container">
+                  <SelectableGraph viewModel={graphContainer} showSelector={false} />
+                </div>
+              {/each}
+            </div>
+          </div>
+          <div class="graph-section">
+            <div class="graph-section-title">Other projections</div>
+            <div class="graph-row">
+              {#each otherGraphContainers as graphContainer}
+                <div class="selectable-graph-container">
+                  <SelectableGraph viewModel={graphContainer} showSelector={true} />
+                </div>
+              {/each}
+            </div>
           </div>
         {:else}
           <div class="empty-config-message">No graphs configured. You can edit 'config/graphs.csv' to get started.</div>
@@ -200,35 +209,33 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     flex: none
     min-height: 400px
 
-.options-container
+.graph-section
   display: flex
-  flex-direction: row
-  align-items: center
-  gap: 10px
-  flex-shrink: 0
-  flex-wrap: wrap
-
-.layout-label
-  font-size: 1rem
-  font-weight: 700
-  color: #1f3a4d
-
-.graphs-container
-  display: grid
-  gap: 20px
+  flex-direction: column
+  gap: 6px
   flex: 1
   min-height: 0
-  &.layout_1_2
-    grid-template-columns: 1fr 1fr
-  &.layout_2_2
-    grid-template-columns: 1fr 1fr
-    grid-template-rows: 1fr 1fr
 
   @media (max-width: 800px)
     flex: none
-    &.layout_1_2, &.layout_2_2
-      grid-template-columns: 1fr
-      grid-template-rows: none
+
+.graph-section-title
+  font-weight: 700
+  font-size: .9em
+  color: #1f3a4d
+  padding-bottom: 4px
+  border-bottom: 1px solid #c3d0da
+  flex-shrink: 0
+
+.graph-row
+  display: grid
+  grid-template-columns: 1fr 1fr
+  gap: 20px
+  flex: 1
+  min-height: 0
+
+  @media (max-width: 800px)
+    grid-template-columns: 1fr
 
 .selectable-graph-container
   display: flex
