@@ -52,10 +52,11 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     <div class="header">
       <div class="app-title">Health Care Financing and NCD Treatment in Ethiopia</div>
       <div class="app-description">
-        This dashboard presents projected hypertension and diabetes treatment outcomes in Ethiopia&rsquo;s Amhara
-        region. Use the sliders to explore how changes in CBHI enrollment, fee-waiver coverage, screening, provider
-        and medication capacity, and reimbursement policies may affect treatment over time. The black line shows the
-        baseline (no change).
+        This dashboard presents projected treatment outcomes for two non-communicable diseases (NCDs) &mdash;
+        hypertension and diabetes &mdash; in Ethiopia&rsquo;s Amhara region. Use the sliders to explore how changes in
+        Community-Based Health Insurance (CBHI) enrollment, fee-waiver coverage, screening, provider and medication
+        capacity, and reimbursement policies may affect treatment over time. The black line shows the baseline (no
+        change).
       </div>
       <div class="header-actions">
         <button type="button" class="about-link" on:click={() => (showModelOverview = true)}>
@@ -146,7 +147,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     <div class="footer">
       <div class="footer-line"></div>
       <div class="footer-text">
-        Created by MJ Lab, Harvard. 2026. Read the study report <a href="#">here</a>.
+        Created by MJ Lab, Harvard. 2026. Read the study report <a href="#">[link will be added later]</a>.
       </div>
     </div>
   </div>

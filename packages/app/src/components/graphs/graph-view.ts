@@ -164,7 +164,17 @@ function lineChartJsConfig(viewModel: GraphViewModel, data: ChartData): ChartCon
         ]
       },
       tooltips: {
-        enabled: false // TODO: Make configurable
+        enabled: true,
+        callbacks: {
+          title: tooltipItems => {
+            const offset = calendarMode.get() === 'gregorian' ? ETHIOPIAN_TO_GREGORIAN_OFFSET : 0
+            const x = (tooltipItems[0].xLabel as number) + offset
+            return x.toFixed(1)
+          },
+          label: tooltipItem => {
+            return viewModel.formatTooltipValue(tooltipItem.yLabel as number)
+          }
+        }
       }
     }
   }

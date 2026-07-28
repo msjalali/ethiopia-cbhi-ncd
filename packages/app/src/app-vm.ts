@@ -268,6 +268,9 @@ function createGraphViewModel(appModel: AppModel, graphSpec: GraphSpec): GraphVi
     },
     formatYAxisTickValue: value => {
       return format(value, graphSpec.yFormat)
+    },
+    formatTooltipValue: value => {
+      return formatTooltipNumber(value, graphSpec.yFormat)
     }
   }
 }
@@ -295,4 +298,16 @@ function format(num: number, formatString: string) {
       // just with thousands separators added for large numbers.
       return num.toLocaleString('en-US', { maximumFractionDigits: 10 })
   }
+}
+
+/**
+ * Return a formatted string for a chart tooltip (hover) value. Shows one decimal
+ * place when the (scaled) magnitude is below 100, otherwise no decimal places.
+ */
+function formatTooltipNumber(num: number, formatString: string) {
+  const isPercent = formatString === 'percent'
+  const scaled = isPercent ? num * 100 : num
+  const decimals = Math.abs(scaled) < 100 ? 1 : 0
+  const text = scaled.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
+  return isPercent ? `${text}%` : text
 }

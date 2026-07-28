@@ -68,4 +68,11 @@ export interface GraphViewModel {
    * @param value The number value.
    */
   formatYAxisTickValue(value: number): string
+
+  /**
+   * Return a formatted string for the given tooltip (hover) value.
+   *
+   * @param value The number value.
+   */
+  formatTooltipValue(value: number): string
 }
