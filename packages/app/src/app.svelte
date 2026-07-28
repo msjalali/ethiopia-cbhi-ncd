@@ -14,11 +14,13 @@ import SelectableGraph from './components/graphs/selectable-graph.svelte'
 import Selector from './components/selector/selector.svelte'
 import type { SelectorViewModel } from './components/selector/selector-vm'
 import ModelOverviewModal from './components/model-overview/model-overview-modal.svelte'
+import HowToUseModal from './components/help/how-to-use-modal.svelte'
 
 export let coreConfig: CoreConfig
 
 let viewModel: AppViewModel
 let showModelOverview = false
+let showHowToUse = false
 
 const calendarSelector: SelectorViewModel = {
   options: [
@@ -52,16 +54,12 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     <div class="header">
       <div class="app-title">Health Care Financing and NCD Treatment in Ethiopia</div>
       <div class="app-description">
-        This dashboard presents projected treatment outcomes for two non-communicable diseases (NCDs) &mdash;
-        hypertension and diabetes &mdash; in Ethiopia&rsquo;s Amhara region. Use the sliders to explore how changes in
-        Community-Based Health Insurance (CBHI) enrollment, fee-waiver coverage, screening, provider and medication
-        capacity, and reimbursement policies may affect treatment over time. The black line shows the baseline (no
-        change).
+        This dashboard projects treatment outcomes for two non-communicable diseases (NCDs) &mdash; hypertension and
+        diabetes &mdash; in Ethiopia&rsquo;s Amhara region. Use the sliders to see how changes in Community-Based
+        Health Insurance (CBHI) enrollment, screening, and reimbursement policies affect treatment over time. The
+        black line shows the baseline (no change).
       </div>
       <div class="header-actions">
-        <button type="button" class="about-link" on:click={() => (showModelOverview = true)}>
-          <span class="about-link-icon">🔍</span> See what&rsquo;s behind the scenes
-        </button>
         <div class="calendar-selector">
           <div class="calendar-label">Calendar:</div>
           <Selector viewModel={calendarSelector} />
@@ -109,6 +107,14 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
             {/if}
           </div>
         {/each}
+        <div class="action-links">
+          <button type="button" class="about-link" on:click={() => (showHowToUse = true)}>
+            <span class="about-link-icon">💡</span> Get the most out of this dashboard
+          </button>
+          <button type="button" class="about-link" on:click={() => (showModelOverview = true)}>
+            <span class="about-link-icon">🔍</span> See what&rsquo;s behind the scenes
+          </button>
+        </div>
       </div>
 
       <div class="graphs-panel">
@@ -131,9 +137,14 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
           <div class="graph-section">
             <div class="graph-section-title">Other Projections</div>
             <div class="graph-row">
-              {#each otherGraphContainers as graphContainer}
+              {#each otherGraphContainers as graphContainer, i}
                 <div class="selectable-graph-container">
-                  <SelectableGraph viewModel={graphContainer} showSelector={true} />
+                  <SelectableGraph
+                    viewModel={graphContainer}
+                    showSelector={true}
+                    statText={statTexts[i + primaryGraphContainers.length]}
+                    statPositive={stats[i + primaryGraphContainers.length]?.positive ?? true}
+                  />
                 </div>
               {/each}
             </div>
@@ -153,6 +164,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   </div>
 
   <ModelOverviewModal bind:open={showModelOverview} />
+  <HowToUseModal bind:open={showHowToUse} />
 {/await}
 
 <!-- STYLE -->
@@ -207,16 +219,28 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     gap: 8px
     width: 100%
 
+.action-links
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: 16px
+  flex-wrap: wrap
+  margin-top: 4px
+  flex-shrink: 0
+
+  @media (max-width: 800px)
+    gap: 12px
+
 .about-link
   display: flex
   align-items: center
   gap: 5px
+  font-size: .85em
   padding: 0
   border: none
   background: none
-  font-size: .9em
-  font-weight: 700
-  color: #1f3a4d
+  font-weight: 600
+  color: #2c5f8a
   cursor: pointer
 
   &:hover

@@ -179,11 +179,12 @@ export class AppViewModel {
     }
 
     // Compute a headline "how much did this change vs. baseline" stat for each
-    // of the fixed "primary outcome" graphs, so the impact of the current
-    // slider settings is visible at a glance without having to read a chart.
-    const primaryGraphSpecs = graphSpecs.slice(0, numFixedGraphs)
-    this.headlineStats = derived(appModel.dataChanged, () => {
-      return primaryGraphSpecs.map(spec => computeHeadlineStat(appModel, spec))
+    // visible graph container, so the impact of the current slider settings is
+    // visible at a glance without having to read a chart. For selectable
+    // containers, this tracks whichever graph is currently chosen.
+    const selectedGraphStores = this.graphContainers.map(container => container.selectedGraphViewModel)
+    this.headlineStats = derived([appModel.dataChanged, ...selectedGraphStores], ([, ...selectedGraphs]) => {
+      return selectedGraphs.map(graph => computeHeadlineStat(appModel, graph.spec))
     })
 
     // Create the scenario view models
@@ -234,13 +235,15 @@ function computeHeadlineStat(appModel: AppModel, spec: GraphSpec): HeadlineStat 
   const isPercent = spec.yFormat === 'percent'
   const rawDelta = curLast.y - refLast.y
   const displayDelta = isPercent ? rawDelta * 100 : rawDelta
-  const rounded = Math.round(displayDelta * 10) / 10
+  const decimals = Math.abs(displayDelta) >= 100 ? 0 : 1
+  const rounded = Number(displayDelta.toFixed(decimals))
   const sign = rounded > 0 ? '+' : ''
   const unit = isPercent ? '%' : ''
+  const formatted = rounded.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
 
   return {
     label,
-    value: `${sign}${rounded}${unit}`,
+    value: `${sign}${formatted}${unit}`,
     year: Math.round(curLast.x),
     positive: rounded >= 0
   }
