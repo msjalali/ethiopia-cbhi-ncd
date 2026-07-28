@@ -72,7 +72,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
       <div class="sliders-panel">
         {#if presets.length > 0 && scenario}
           <div class="presets-section">
-            <div class="presets-title">Hypothetical Scenarios</div>
+            <div class="presets-title">Example Scenarios</div>
             <div class="preset-row">
               {#each presets as preset}
                 <button class="preset-button" on:click={() => scenario.applyPreset(preset)}>{preset.name}</button>
