@@ -52,7 +52,7 @@ function formatValue(value: number): string {
 <!-- STYLE -->
 <style lang="sass">
 .input-row-container
-  margin: .3rem 0
+  margin: .15rem 0
 
 .spacer
   flex: 1

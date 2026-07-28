@@ -1,0 +1,7 @@
+step,caption
+1,"The model has two parallel sub-models, one for hypertension (HTN) and one for diabetes (DIA), each following the same structure shown in the steps below."
+2,"Households move between being eligible-but-not-enrolled in CBHI, enrolled as CBHI beneficiaries, or fee-waivered. Separately, people at risk of the condition become an untreated NCD population once identified."
+3,"Enrolled and fee-waivered households gain health insurance coverage. Facilities earn internal revenue from user fees and reimbursement, at a rate set by the reimbursement approval rate, and untreated cases can become treated NCD."
+4,"CBHI premiums and reimbursement requests from insured households generate CBHI revenue, which in turn affects the reimbursement approval rate paid to facilities."
+5,"Screening identifies people at risk of the condition, and health care utilization together with care capacity determine how many untreated cases become treated."
+6,"Care capacity is further shaped by essential medication availability, funded by public drug funds, and by the number of health care providers, completing the full model structure."

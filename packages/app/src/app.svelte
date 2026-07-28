@@ -4,7 +4,7 @@ import './global.css'
 
 import type { Config as CoreConfig } from '@core'
 
-import { calendarMode } from '@shared/calendar'
+import { calendarMode, ETHIOPIAN_TO_GREGORIAN_OFFSET } from '@shared/calendar'
 
 import type { AppViewModel } from './app-vm'
 import { createAppViewModel } from './app-vm'
@@ -13,10 +13,12 @@ import InputRow from './components/inputs/input-row.svelte'
 import SelectableGraph from './components/graphs/selectable-graph.svelte'
 import Selector from './components/selector/selector.svelte'
 import type { SelectorViewModel } from './components/selector/selector-vm'
+import ModelOverviewModal from './components/model-overview/model-overview-modal.svelte'
 
 export let coreConfig: CoreConfig
 
 let viewModel: AppViewModel
+let showModelOverview = false
 
 const calendarSelector: SelectorViewModel = {
   options: [
@@ -27,6 +29,12 @@ const calendarSelector: SelectorViewModel = {
 }
 
 $: scenarios = viewModel?.scenarios
+$: scenario = $scenarios?.[0]
+$: presets = viewModel?.presets ?? []
+$: headlineStats = viewModel?.headlineStats
+$: stats = $headlineStats ?? []
+$: yearOffset = $calendarMode === 'gregorian' ? ETHIOPIAN_TO_GREGORIAN_OFFSET : 0
+$: statTexts = stats.map(stat => (stat.year !== undefined ? `${stat.value} by ${stat.year + yearOffset}` : stat.value))
 $: primaryGraphContainers = viewModel?.graphContainers.slice(0, 2) ?? []
 $: otherGraphContainers = viewModel?.graphContainers.slice(2, 4) ?? []
 
@@ -42,33 +50,47 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 {:then}
   <div class="app-container">
     <div class="header">
-      <div class="header-top">
-        <div class="app-title">Health Care Financing and NCD Treatment in Ethiopia</div>
-        <div class="calendar-selector">
-          <div class="calendar-label">Calendar:</div>
-          <Selector viewModel={calendarSelector} />
-        </div>
-      </div>
+      <div class="app-title">Health Care Financing and NCD Treatment in Ethiopia</div>
       <div class="app-description">
         This dashboard presents projected hypertension and diabetes treatment outcomes in Ethiopia&rsquo;s Amhara
         region. Use the sliders to explore how changes in CBHI enrollment, fee-waiver coverage, screening, provider
         and medication capacity, and reimbursement policies may affect treatment over time. The black line shows the
         baseline (no change).
       </div>
+      <div class="header-actions">
+        <button type="button" class="about-link" on:click={() => (showModelOverview = true)}>
+          <span class="about-link-icon">🔍</span> See what&rsquo;s behind the scenes
+        </button>
+        <div class="calendar-selector">
+          <div class="calendar-label">Calendar:</div>
+          <Selector viewModel={calendarSelector} />
+        </div>
+      </div>
     </div>
 
     <div class="content-container">
       <div class="sliders-panel">
+        {#if presets.length > 0 && scenario}
+          <div class="presets-section">
+            <div class="presets-title">Hypothetical Scenarios</div>
+            <div class="preset-row">
+              {#each presets as preset}
+                <button class="preset-button" on:click={() => scenario.applyPreset(preset)}>{preset.name}</button>
+              {/each}
+            </div>
+          </div>
+        {/if}
         <div class="sliders-panel-title">Decision Levers</div>
         {#each $scenarios as scenario}
           <div class="scenario-container">
             {#if scenario.sliders.length > 0}
               <div class="scenario-header">
-                {#if scenario.name}
-                  <div class="scenario-name">{scenario.name}</div>
-                {/if}
+                <div class="nudge-text">👉 Move a slider and watch the projections respond</div>
                 <button on:click={() => scenario.reset()}>Reset</button>
               </div>
+              {#if scenario.name}
+                <div class="scenario-name">{scenario.name}</div>
+              {/if}
               {#each scenario.sliderGroups as group}
                 <div class="slider-section">
                   {#if group.name}
@@ -91,17 +113,22 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
       <div class="graphs-panel">
         {#if primaryGraphContainers.length > 0}
           <div class="graph-section">
-            <div class="graph-section-title">Primary outcomes</div>
+            <div class="graph-section-title">Primary Outcomes</div>
             <div class="graph-row">
-              {#each primaryGraphContainers as graphContainer}
+              {#each primaryGraphContainers as graphContainer, i}
                 <div class="selectable-graph-container">
-                  <SelectableGraph viewModel={graphContainer} showSelector={false} />
+                  <SelectableGraph
+                    viewModel={graphContainer}
+                    showSelector={false}
+                    statText={statTexts[i]}
+                    statPositive={stats[i]?.positive ?? true}
+                  />
                 </div>
               {/each}
             </div>
           </div>
           <div class="graph-section">
-            <div class="graph-section-title">Other projections</div>
+            <div class="graph-section-title">Other Projections</div>
             <div class="graph-row">
               {#each otherGraphContainers as graphContainer}
                 <div class="selectable-graph-container">
@@ -123,6 +150,8 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
       </div>
     </div>
   </div>
+
+  <ModelOverviewModal bind:open={showModelOverview} />
 {/await}
 
 <!-- STYLE -->
@@ -130,10 +159,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .app-container
   display: flex
   flex-direction: column
-  gap: 12px
+  gap: 16px
   box-sizing: border-box
   height: 100vh
-  padding: 18px 24px
+  padding: 14px 24px
   background-color: #fff
 
   @media (max-width: 800px)
@@ -143,30 +172,58 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     gap: 12px
 
 .header
+  position: relative
   display: flex
   flex-direction: column
-  gap: 6px
+  gap: 2px
   flex-shrink: 0
-
-.header-top
-  display: flex
-  flex-direction: row
-  justify-content: space-between
-  align-items: baseline
-  gap: 16px
-
-  @media (max-width: 800px)
-    flex-wrap: wrap
-    gap: 8px
 
 .app-title
   font-size: 1.45em
   font-weight: 700
   color: #1f3a4d
   letter-spacing: .01em
+  max-width: calc(100% - 260px)
 
   @media (max-width: 800px)
     font-size: 1.15em
+    max-width: none
+
+.header-actions
+  position: absolute
+  top: 2px
+  right: 0
+  display: flex
+  flex-direction: column
+  align-items: flex-end
+  gap: 4px
+  flex-shrink: 0
+
+  @media (max-width: 800px)
+    position: static
+    flex-direction: column
+    align-items: flex-start
+    gap: 8px
+    width: 100%
+
+.about-link
+  display: flex
+  align-items: center
+  gap: 5px
+  padding: 0
+  border: none
+  background: none
+  font-size: .9em
+  font-weight: 700
+  color: #1f3a4d
+  cursor: pointer
+
+  &:hover
+    text-decoration: underline
+
+.about-link-icon
+  font-size: 1em
+  line-height: 1
 
 .calendar-selector
   display: flex
@@ -174,17 +231,18 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   align-items: center
   gap: 8px
   flex-shrink: 0
+  font-size: .9em
 
 .calendar-label
-  font-size: 1rem
   font-weight: 700
   color: #1f3a4d
 
 .app-description
-  font-size: .85em
+  font-size: .78em
   color: #64707a
   max-width: 1000px
-  line-height: 1.45
+  line-height: 1.4
+  margin-bottom: 2px
 
 .content-container
   display: flex
@@ -222,7 +280,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .graph-section-title
   font-weight: 700
   font-size: .9em
-  color: #1f3a4d
+  color: #2c5f8a
   padding-bottom: 4px
   border-bottom: 1px solid #c3d0da
   flex-shrink: 0
@@ -251,7 +309,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .sliders-panel
   display: flex
   flex-direction: column
-  gap: 10px
+  gap: 4px
   width: 460px
   flex-shrink: 0
   min-height: 0
@@ -265,19 +323,53 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .sliders-panel-title
   font-size: 1rem
   font-weight: 700
-  color: #1f3a4d
+  color: #2c5f8a
   flex-shrink: 0
+
+.presets-section
+  display: flex
+  flex-direction: column
+  gap: 4px
+  flex-shrink: 0
+  padding-bottom: 10px
+  border-bottom: 1px solid #c3d0da
+
+.presets-title
+  font-size: 1rem
+  font-weight: 700
+  color: #2c5f8a
+
+.preset-row
+  display: flex
+  flex-wrap: wrap
+  gap: 6px
+  flex-shrink: 0
+
+.preset-button
+  padding: 4px 10px
+  font-size: .78em
+  font-weight: 400
+  color: #1f3a4d
+  background-color: #fff
+  border: 1px solid #9db2c2
+  border-radius: 14px
+  cursor: pointer
+  transition: background-color .15s ease, border-color .15s ease
+
+  &:hover
+    background-color: #dce5ec
+    border-color: #5c6b77
 
 .scenario-container
   display: flex
   flex-direction: column
   flex-shrink: 0
-  padding: 12px 16px
+  padding: 6px 16px
   border-radius: 10px
   background-color: #eef2f6
 
 .slider-section
-  margin-top: 12px
+  margin-top: 6px
 
   &:first-child
     margin-top: 0
@@ -293,10 +385,15 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .scenario-header
   display: flex
   flex-direction: row
-  justify-content: flex-end
-  align-items: baseline
+  justify-content: space-between
+  align-items: center
   gap: 10px
   margin-bottom: 4px
+
+.nudge-text
+  font-size: .85em
+  font-weight: 600
+  color: #2c5f8a
 
 .scenario-name
   margin-bottom: 10px

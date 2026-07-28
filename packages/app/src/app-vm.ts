@@ -1,6 +1,6 @@
-import { get, writable, type Readable } from 'svelte/store'
+import { derived, get, writable, type Readable } from 'svelte/store'
 
-import type { Config as CoreConfig, GraphSpec, SourceName } from '@core'
+import type { Config as CoreConfig, GraphSpec, Point, Series, SourceName } from '@core'
 
 import { _ } from '@shared/i18n'
 
@@ -8,6 +8,7 @@ import { type AppModel, type AppModelContext, createAppModel } from '@model/app-
 import type { WritableSliderInput } from '@model/app-model-inputs'
 
 import inputsCsvRaw from '../../../config/inputs.csv?raw'
+import presetsCsvRaw from '../../../config/presets.csv?raw'
 
 function getFixedVarNames(csv: string): Set<string> {
   const [headerLine, ...rows] = csv.trim().split(/\r?\n/)
@@ -44,8 +45,44 @@ function getVarGroupNames(csv: string): Map<string, string> {
   return map
 }
 
+/**
+ * Represents a named bundle of slider values representing a real-world policy
+ * package (e.g. "Universal CBHI push"), so that users can explore a
+ * recognizable policy rather than guessing at individual abstract sliders.
+ * Driven entirely by `config/presets.csv`, where each row is a preset and
+ * each remaining column is a slider's varname mapped to the value it should
+ * be set to when that preset is applied.
+ */
+export interface PolicyPreset {
+  name: string
+  values: Record<string, number>
+}
+
+function parsePresets(csv: string): PolicyPreset[] {
+  const [headerLine, ...rows] = csv.trim().split(/\r?\n/)
+  const headers = headerLine.split(',')
+  const nameIdx = headers.indexOf('preset name')
+  return rows
+    .map(row => row.split(','))
+    .filter(cols => cols[nameIdx]?.trim())
+    .map(cols => {
+      const values: Record<string, number> = {}
+      headers.forEach((header, i) => {
+        if (i === nameIdx) {
+          return
+        }
+        const raw = cols[i]?.trim()
+        if (raw !== undefined && raw !== '') {
+          values[header] = Number(raw)
+        }
+      })
+      return { name: cols[nameIdx].trim(), values }
+    })
+}
+
 const HIDDEN_VAR_NAMES = getFixedVarNames(inputsCsvRaw)
 const VAR_GROUP_NAMES = getVarGroupNames(inputsCsvRaw)
+const POLICY_PRESETS = parsePresets(presetsCsvRaw)
 import type { GraphViewModel } from '@components/graphs/graph-vm'
 import { SelectableGraphViewModel } from '@components/graphs/selectable-graph-vm'
 
@@ -66,6 +103,19 @@ export class ScenarioViewModel {
 
   reset() {
     this.sliders.forEach(slider => slider.reset())
+  }
+
+  /**
+   * Set every slider to the value specified by the given preset (leaving
+   * sliders not mentioned in the preset untouched).
+   */
+  applyPreset(preset: PolicyPreset) {
+    for (const slider of this.sliders) {
+      const varName = slider.spec.varName ?? ''
+      if (varName in preset.values) {
+        slider.set(preset.values[varName])
+      }
+    }
   }
 }
 
@@ -98,9 +148,19 @@ export async function createAppViewModel(coreConfig: CoreConfig): Promise<AppVie
   return new AppViewModel(appModel)
 }
 
+export interface HeadlineStat {
+  label: string
+  value: string
+  /** The final simulation year this stat was computed for (in the model's own, Ethiopian, calendar). */
+  year: number | undefined
+  positive: boolean
+}
+
 export class AppViewModel {
   public readonly graphContainers: SelectableGraphViewModel[]
   public readonly scenarios: Readable<ScenarioViewModel[]>
+  public readonly headlineStats: Readable<HeadlineStat[]>
+  public readonly presets: PolicyPreset[] = POLICY_PRESETS
 
   constructor(appModel: AppModel) {
     const graphSpecs = [...appModel.coreConfig.graphs.values()]
@@ -117,6 +177,14 @@ export class AppViewModel {
       const excludedGraphIds = i >= numFixedGraphs ? fixedGraphIds : undefined
       this.graphContainers.push(new SelectableGraphViewModel(graphViewModels, i, graphId, excludedGraphIds))
     }
+
+    // Compute a headline "how much did this change vs. baseline" stat for each
+    // of the fixed "primary outcome" graphs, so the impact of the current
+    // slider settings is visible at a glance without having to read a chart.
+    const primaryGraphSpecs = graphSpecs.slice(0, numFixedGraphs)
+    this.headlineStats = derived(appModel.dataChanged, () => {
+      return primaryGraphSpecs.map(spec => computeHeadlineStat(appModel, spec))
+    })
 
     // Create the scenario view models
     const scenarios: ScenarioViewModel[] = []
@@ -142,6 +210,47 @@ export class AppViewModel {
     }
     this.scenarios = writable(scenarios)
   }
+}
+
+/**
+ * Compute a "how much did this change vs. baseline" headline stat for the
+ * given graph, comparing the final-year value of the current scenario
+ * against the "Ref" (baseline) line already configured for that graph.
+ */
+function computeHeadlineStat(appModel: AppModel, spec: GraphSpec): HeadlineStat {
+  const refDataset = spec.datasets.find(d => d.externalSourceName === 'Ref') ?? spec.datasets[0]
+  const curDataset = spec.datasets.find(d => !d.externalSourceName) ?? spec.datasets[0]
+
+  const refLast = lastPoint(appModel.getSeriesForVar(refDataset.externalSourceName, refDataset.varId))
+  const curLast = lastPoint(appModel.getSeriesForVar(curDataset.externalSourceName, curDataset.varId))
+
+  const fullTitle = get(_)(spec.titleKey)
+  const label = fullTitle.includes(':') ? (fullTitle.split(':').pop() ?? fullTitle).trim() : fullTitle
+
+  if (refLast === undefined || curLast === undefined) {
+    return { label, value: 'N/A', year: undefined, positive: true }
+  }
+
+  const isPercent = spec.yFormat === 'percent'
+  const rawDelta = curLast.y - refLast.y
+  const displayDelta = isPercent ? rawDelta * 100 : rawDelta
+  const rounded = Math.round(displayDelta * 10) / 10
+  const sign = rounded > 0 ? '+' : ''
+  const unit = isPercent ? '%' : ''
+
+  return {
+    label,
+    value: `${sign}${rounded}${unit}`,
+    year: Math.round(curLast.x),
+    positive: rounded >= 0
+  }
+}
+
+function lastPoint(series: Series | undefined): Point | undefined {
+  if (!series || series.points.length === 0) {
+    return undefined
+  }
+  return series.points[series.points.length - 1]
 }
 
 /**
