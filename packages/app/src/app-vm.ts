@@ -171,9 +171,22 @@ export class AppViewModel {
     const maxVisibleGraphs = Math.min(4, graphSpecs.length)
     const numFixedGraphs = Math.min(2, graphSpecs.length)
     const fixedGraphIds = new Set(graphViewModels.slice(0, numFixedGraphs).map(graph => graph.spec.id))
+
+    // Default landing selections for the selectable ("other") graph slots, keyed by
+    // the underlying variable id so they stay stable regardless of the dropdown's
+    // display order (which follows the order graphs are listed in config/graphs.csv).
+    const defaultOtherVarIds = ['_cbhi_beneficiaries', '_frac_adult_of_pop_with_coverage']
+
     this.graphContainers = []
     for (let i = 0; i < maxVisibleGraphs; i++) {
-      const graphId = graphViewModels[i].spec.id
+      let graphId = graphViewModels[i].spec.id
+      if (i >= numFixedGraphs) {
+        const defaultVarId = defaultOtherVarIds[i - numFixedGraphs]
+        const defaultGraph = defaultVarId && graphViewModels.find(g => g.spec.datasets[0]?.varId === defaultVarId)
+        if (defaultGraph) {
+          graphId = defaultGraph.spec.id
+        }
+      }
       const excludedGraphIds = i >= numFixedGraphs ? fixedGraphIds : undefined
       this.graphContainers.push(new SelectableGraphViewModel(graphViewModels, i, graphId, excludedGraphIds))
     }

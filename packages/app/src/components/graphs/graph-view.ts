@@ -7,6 +7,40 @@ import { calendarMode, ETHIOPIAN_TO_GREGORIAN_OFFSET } from '@shared/calendar'
 
 import type { GraphViewModel } from './graph-vm'
 
+// All policy sliders take effect as a step change starting in this year (per the
+// "* strategy start year" variables in the Vensim model), so we mark it on every
+// plot with a vertical reference line.
+const POLICY_CHANGE_YEAR = 2018
+
+/**
+ * Chart.js plugin that draws a thin dashed vertical line at the year the policy
+ * sliders' step change takes effect.
+ */
+const policyChangeLinePlugin = {
+  id: 'policyChangeLine',
+  afterDraw(chart: Chart) {
+    const xScaleKey = Object.keys(chart.scales).find(key => key.startsWith('x'))
+    const xScale = xScaleKey ? chart.scales[xScaleKey] : undefined
+    if (!xScale) {
+      return
+    }
+    const x = xScale.getPixelForValue(POLICY_CHANGE_YEAR)
+    if (x < chart.chartArea.left || x > chart.chartArea.right) {
+      return
+    }
+    const ctx = chart.ctx
+    ctx.save()
+    ctx.beginPath()
+    ctx.setLineDash([4, 3])
+    ctx.lineWidth = 1.75
+    ctx.strokeStyle = 'rgba(60, 68, 76, 0.85)'
+    ctx.moveTo(x, chart.chartArea.top)
+    ctx.lineTo(x, chart.chartArea.bottom)
+    ctx.stroke()
+    ctx.restore()
+  }
+}
+
 /**
  * Options for graph view styling.
  */
@@ -102,6 +136,8 @@ function createChart(canvas: HTMLCanvasElement, viewModel: GraphViewModel, optio
   applyFontOptions(chartJsConfig.options.scales.yAxes[0].scaleLabel)
   applyFontOptions(chartJsConfig.options.scales.xAxes[0].ticks)
   applyFontOptions(chartJsConfig.options.scales.yAxes[0].ticks)
+
+  chartJsConfig.plugins = [policyChangeLinePlugin]
 
   return new Chart(canvas, chartJsConfig)
 }

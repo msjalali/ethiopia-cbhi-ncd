@@ -31,14 +31,20 @@ function onKeydown(e: KeyboardEvent) {
 
       <div class="content">
         <p>
+          Each slider change is applied as a one-time step change, taking effect at the year marked by the dashed
+          line on each plot, rather than phasing in gradually.
+        </p>
+        <p>
           Moving a slider won&rsquo;t always produce a dramatic change, and that&rsquo;s useful information in itself.
-          Some levers move outcomes a lot; others barely move them at all. A few ways to build intuition as you
-          explore:
+          Some levers move outcomes a lot; others barely move them at all.
+          <br />
+          A few ways to build intuition as you explore:
         </p>
         <ul>
           <li>
-            <strong>Set a target.</strong> Pick a goal, say 60% of hypertension patients in treatment by 2030, and
-            adjust the levers until the projection gets there. What combination did it take?
+            <strong>Set a target.</strong> Pick a goal, say 60% of hypertension patients in treatment by 2028
+            (Ethiopian calendar), and adjust the levers until the projection gets there. What combination did it
+            take?
           </li>
           <li>
             <strong>Guess before you move.</strong> Before adjusting a slider, predict how much you think it will

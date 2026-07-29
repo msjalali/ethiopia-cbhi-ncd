@@ -36,7 +36,7 @@ $: presets = viewModel?.presets ?? []
 $: headlineStats = viewModel?.headlineStats
 $: stats = $headlineStats ?? []
 $: yearOffset = $calendarMode === 'gregorian' ? ETHIOPIAN_TO_GREGORIAN_OFFSET : 0
-$: statTexts = stats.map(stat => (stat.year !== undefined ? `${stat.value} by ${stat.year + yearOffset}` : stat.value))
+$: statTexts = stats.map(stat => (stat.year !== undefined ? `${stat.value} in ${stat.year + yearOffset}` : stat.value))
 $: primaryGraphContainers = viewModel?.graphContainers.slice(0, 2) ?? []
 $: otherGraphContainers = viewModel?.graphContainers.slice(2, 4) ?? []
 
@@ -109,10 +109,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
         {/each}
         <div class="action-links">
           <button type="button" class="about-link" on:click={() => (showHowToUse = true)}>
-            <span class="about-link-icon">💡</span> Get the most out of this dashboard
+            <span class="about-link-icon">💡</span> <span class="about-link-text">Get the most out of this dashboard</span>
           </button>
           <button type="button" class="about-link" on:click={() => (showModelOverview = true)}>
-            <span class="about-link-icon">🔍</span> See what&rsquo;s behind the scenes
+            <span class="about-link-icon">🔍</span> <span class="about-link-text">See what&rsquo;s behind the scenes</span>
           </button>
         </div>
       </div>
@@ -194,7 +194,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .app-title
   font-size: 1.45em
   font-weight: 700
-  color: #1f3a4d
+  color: #2c5f8a
   letter-spacing: .01em
   max-width: calc(100% - 260px)
 
@@ -235,7 +235,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   display: flex
   align-items: center
   gap: 5px
-  font-size: .85em
+  font-size: .95em
   padding: 0
   border: none
   background: none
@@ -244,11 +244,14 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   cursor: pointer
 
   &:hover
-    text-decoration: underline
+    opacity: .8
 
 .about-link-icon
   font-size: 1em
   line-height: 1
+
+.about-link-text
+  text-decoration: underline
 
 .calendar-selector
   display: flex
@@ -418,7 +421,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .nudge-text
   font-size: .85em
   font-weight: 600
-  color: #2c5f8a
+  color: #000
 
 .scenario-name
   margin-bottom: 10px
