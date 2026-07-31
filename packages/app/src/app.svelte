@@ -2,8 +2,11 @@
 <script lang="ts">
 import './global.css'
 
+import { derived } from 'svelte/store'
+
 import type { Config as CoreConfig } from '@core'
 
+import { _ } from '@shared/i18n'
 import { calendarMode, ETHIOPIAN_TO_GREGORIAN_OFFSET } from '@shared/calendar'
 
 import type { AppViewModel } from './app-vm'
@@ -15,12 +18,25 @@ import Selector from './components/selector/selector.svelte'
 import type { SelectorViewModel } from './components/selector/selector-vm'
 import ModelOverviewModal from './components/model-overview/model-overview-modal.svelte'
 import HowToUseModal from './components/help/how-to-use-modal.svelte'
+import { scheduleUsageSnapshot } from './usage-logging'
+
+// Maps each slider's model variable name to the column name used in the usage log.
+const LEVER_LOG_KEYS: Record<string, string> = {
+  'enrollment strategy strength': 'enrollment',
+  'fee waiver strategy strength': 'fee_waiver',
+  'delay reduction strategy strength': 'delay_months',
+  'reimbursement strategy strength': 'reimbursement',
+  'provider strategy strength': 'provider',
+  'restock strategy strength': 'restock',
+  'screen strategy strength': 'screening'
+}
 
 export let coreConfig: CoreConfig
 
 let viewModel: AppViewModel
 let showModelOverview = false
 let showHowToUse = false
+let showPrimaryOutcomesInfo = false
 
 const calendarSelector: SelectorViewModel = {
   options: [
@@ -36,9 +52,46 @@ $: presets = viewModel?.presets ?? []
 $: headlineStats = viewModel?.headlineStats
 $: stats = $headlineStats ?? []
 $: yearOffset = $calendarMode === 'gregorian' ? ETHIOPIAN_TO_GREGORIAN_OFFSET : 0
-$: statTexts = stats.map(stat => (stat.year !== undefined ? `${stat.value} in ${stat.year + yearOffset}` : stat.value))
+$: statTexts = stats.map(stat => {
+  if (stat.year === undefined) {
+    return stat.value
+  }
+  const unitText = stat.unit ? ` ${stat.unit}` : ''
+  return `${stat.value}${unitText} in ${stat.year + yearOffset}`
+})
 $: primaryGraphContainers = viewModel?.graphContainers.slice(0, 2) ?? []
 $: otherGraphContainers = viewModel?.graphContainers.slice(2, 4) ?? []
+
+// Track dashboard usage (lever settings + which "Other Projections" graphs are
+// selected) for the two selectable graph slots, so changes to either trigger a
+// usage-log snapshot below.
+$: otherContainer0 = otherGraphContainers[0]
+$: otherContainer1 = otherGraphContainers[1]
+$: selectedOtherGraph0 = otherContainer0?.selectedGraphViewModel
+$: selectedOtherGraph1 = otherContainer1?.selectedGraphViewModel
+
+// A single derived store combining all of the current scenario's slider values,
+// so that any slider change (any index) triggers the usage-log snapshot below.
+$: sliderValuesStore = scenario && scenario.sliders.length > 0 ? derived(scenario.sliders, values => values) : undefined
+
+$: if (viewModel && sliderValuesStore && $sliderValuesStore) {
+  const leverSnapshot: Record<string, number> = {}
+  scenario.sliders.forEach((slider, i) => {
+    const logKey = LEVER_LOG_KEYS[slider.spec.varName ?? '']
+    if (logKey) {
+      const rawValue = $sliderValuesStore[i]
+      // Log the delay lever in the same absolute-months units shown in the UI,
+      // rather than the underlying -0.5..0.5 fractional-change value.
+      leverSnapshot[logKey] = logKey === 'delay_months' ? Math.round(12 * (1 + rawValue)) : rawValue
+    }
+  })
+  scheduleUsageSnapshot({
+    ...leverSnapshot,
+    other_dropdown_1: selectedOtherGraph0 ? $_($selectedOtherGraph0.spec.titleKey) : '',
+    other_dropdown_2: selectedOtherGraph1 ? $_($selectedOtherGraph1.spec.titleKey) : '',
+    calendar_mode: $calendarMode
+  })
+}
 
 // Wait for the view model to be loaded before we render the app
 const viewReady = createAppViewModel(coreConfig).then(result => {
@@ -120,7 +173,25 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
       <div class="graphs-panel">
         {#if primaryGraphContainers.length > 0}
           <div class="graph-section">
-            <div class="graph-section-title">Primary Outcomes</div>
+            <div class="graph-section-title-row">
+              <div class="graph-section-title">Primary Outcomes</div>
+              <button
+                type="button"
+                class="info-icon"
+                aria-label="What does % in treatment mean?"
+                aria-expanded={showPrimaryOutcomesInfo}
+                on:click={() => (showPrimaryOutcomesInfo = !showPrimaryOutcomesInfo)}
+              >
+                ?
+              </button>
+            </div>
+            {#if showPrimaryOutcomesInfo}
+              <div class="section-description">
+                &ldquo;% in treatment&rdquo; is the share of people with hypertension or diabetes who are currently
+                diagnosed and on treatment, out of everyone estimated to have the condition (both diagnosed and
+                undiagnosed).
+              </div>
+            {/if}
             <div class="graph-row">
               {#each primaryGraphContainers as graphContainer, i}
                 <div class="selectable-graph-container">
@@ -135,7 +206,10 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
             </div>
           </div>
           <div class="graph-section">
-            <div class="graph-section-title">Other Projections</div>
+            <div class="graph-section-title-row">
+              <div class="graph-section-title">Other Projections</div>
+              <div class="graph-section-hint">(select an outcome from the list below)</div>
+            </div>
             <div class="graph-row">
               {#each otherGraphContainers as graphContainer, i}
                 <div class="selectable-graph-container">
@@ -305,13 +379,57 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   @media (max-width: 800px)
     flex: none
 
+.graph-section-title-row
+  display: flex
+  flex-direction: row
+  align-items: center
+  gap: 8px
+  padding-bottom: 4px
+  border-bottom: 1px solid #c3d0da
+  flex-shrink: 0
+
 .graph-section-title
   font-weight: 700
   font-size: .9em
   color: #2c5f8a
-  padding-bottom: 4px
-  border-bottom: 1px solid #c3d0da
+
+.graph-section-hint
+  font-size: .8em
+  font-weight: 400
+  color: #5c6b77
+
+.section-description
+  font-size: .85em
+  color: #5c6b77
+  background-color: #eef2f6
+  border-radius: 6px
+  padding: 6px 8px
+  margin-top: 4px
+  line-height: 1.35
+
+.info-icon
+  display: flex
+  align-items: center
+  justify-content: center
+  width: 18px
+  height: 18px
+  padding: 0
+  margin: 0
+  border-radius: 50%
+  border: 1px solid #8a9aa8
+  background: none
+  color: #5c6b77
+  font-size: .7em
+  font-weight: 700
+  line-height: 1
+  font-family: inherit
+  cursor: pointer
   flex-shrink: 0
+  -webkit-tap-highlight-color: transparent
+
+  &:hover, &:focus-visible, &[aria-expanded='true']
+    background-color: #dce5ec
+    border-color: #5c6b77
 
 .graph-row
   display: grid

@@ -14,6 +14,10 @@ function formatValue(value: number): string {
   if (input.spec.format === 'percent') {
     const sign = value > 0 ? '+' : ''
     return `${sign}${Math.round(value * 100)}%`
+  } else if (input.spec.format === 'delay_months') {
+    // The underlying value is a fractional change relative to a 12-month baseline
+    // delay (e.g. -0.5 to +0.5); show it as an absolute, intuitive month count.
+    return `${Math.round(12 * (1 + value))}`
   } else if (input.spec.format === '.2f') {
     return value.toFixed(2)
   } else {

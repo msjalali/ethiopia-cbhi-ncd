@@ -17,7 +17,9 @@ const selectedGraphViewModel = viewModel.selectedGraphViewModel
 <!-- TEMPLATE -->
 <div class="selectable-graph">
   {#if showSelector}
-    <Selector viewModel={viewModel.selectorViewModel} />
+    <div class="selector-highlight">
+      <Selector viewModel={viewModel.selectorViewModel} />
+    </div>
   {:else}
     <div class="graph-title">{$_($selectedGraphViewModel.spec.titleKey)}</div>
   {/if}
@@ -49,12 +51,21 @@ const selectedGraphViewModel = viewModel.selectedGraphViewModel
   font-weight: 700
   color: #1f3a4d
   background-color: #eef2f6
-  border-left: 3px solid #2f6690
+  border-right: 3px solid #2f6690
   border-radius: 6px
   padding: 3px 10px
+  text-align: right
 
   &.negative
-    border-left-color: #a83c3c
+    border-right-color: #a83c3c
+
+.selector-highlight :global(select)
+  background-color: #eef2f6
+  border: 1px solid #2c5f8a
+  font-size: .95em
+  font-weight: 700
+  color: #333
+  cursor: pointer
 
 .graph-container
   position: relative

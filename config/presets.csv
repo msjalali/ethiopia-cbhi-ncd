@@ -1,7 +1,8 @@
 preset name,enrollment strategy strength,fee waiver strategy strength,delay reduction strategy strength,reimbursement strategy strength,provider strategy strength,restock strategy strength,screen strategy strength
-a) CBHI Push,3,3,0,0,0,0,0
+a) More coverage,3,3,0,0,0,0,0
 b) Care capacity investment,0,0,0,0,0.6,0.6,0
 c) Reimbursement reform,0,0,-0.3,0.5,0,0,0
 d) Screening expansion,0,0,0,0,0,0,0.6
 Combine a + c,3,3,-0.3,0.5,0,0,0
 Combine b + c,0,0,-0.3,0.5,0.6,0.6,0
+Combine a + d,3,3,0,0,0,0,0.6

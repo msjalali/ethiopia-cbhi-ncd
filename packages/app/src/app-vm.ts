@@ -151,6 +151,8 @@ export async function createAppViewModel(coreConfig: CoreConfig): Promise<AppVie
 export interface HeadlineStat {
   label: string
   value: string
+  /** A short unit noun to display after the value (e.g. "people", "households"). */
+  unit: string
   /** The final simulation year this stat was computed for (in the model's own, Ethiopian, calendar). */
   year: number | undefined
   positive: boolean
@@ -242,7 +244,7 @@ function computeHeadlineStat(appModel: AppModel, spec: GraphSpec): HeadlineStat 
   const label = fullTitle.includes(':') ? (fullTitle.split(':').pop() ?? fullTitle).trim() : fullTitle
 
   if (refLast === undefined || curLast === undefined) {
-    return { label, value: 'N/A', year: undefined, positive: true }
+    return { label, value: 'N/A', unit: '', year: undefined, positive: true }
   }
 
   const isPercent = spec.yFormat === 'percent'
@@ -251,14 +253,36 @@ function computeHeadlineStat(appModel: AppModel, spec: GraphSpec): HeadlineStat 
   const decimals = Math.abs(displayDelta) >= 100 ? 0 : 1
   const rounded = Number(displayDelta.toFixed(decimals))
   const sign = rounded > 0 ? '+' : ''
-  const unit = isPercent ? '%' : ''
+  const percentSuffix = isPercent ? '%' : ''
+  const unit = isPercent ? '' : unitNounForGraph(spec)
   const formatted = rounded.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals })
 
   return {
     label,
-    value: `${sign}${formatted}${unit}`,
+    value: `${sign}${formatted}${percentSuffix}`,
+    unit,
     year: Math.round(curLast.x),
     positive: rounded >= 0
+  }
+}
+
+/**
+ * Derive a short unit noun (e.g. "people", "households") from a graph's y-axis
+ * label, for non-percent graphs, so headline stats read naturally (e.g. "+5
+ * people" rather than a bare number).
+ */
+function unitNounForGraph(spec: GraphSpec): string {
+  const rawLabel = spec.yAxisLabelKey ? get(_)(spec.yAxisLabelKey) : ''
+  if (rawLabel === 'Household/year') {
+    return 'households/year'
+  } else if (rawLabel === 'Household') {
+    return 'households'
+  } else if (rawLabel === 'People/year') {
+    return 'people/year'
+  } else if (rawLabel === 'People') {
+    return 'people'
+  } else {
+    return ''
   }
 }
 
