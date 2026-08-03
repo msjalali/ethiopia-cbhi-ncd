@@ -232,7 +232,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     <div class="footer">
       <div class="footer-line"></div>
       <div class="footer-text">
-        Created by MJ Lab, Harvard. 2026. Read the study report <a href="#">[link will be added later]</a>.
+        Created by MJ Lab, Harvard. 2026. Read the study report <a href="#">[link will be added later]</a>
       </div>
     </div>
   </div>
