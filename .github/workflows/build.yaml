@@ -34,20 +34,20 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        # Check out into a `test4`-named subdirectory (see checkout step below) so that
-        # relative data file paths configured in config/model.csv (which reference the
-        # project folder by its local name, `test4`) resolve the same way here as they
-        # do on the local development machine.
-        working-directory: test4
+        # Check out into an `ethiopia-cbhi-ncd`-named subdirectory (see checkout step below) so
+        # that relative data file paths configured in config/model.csv (which reference the
+        # project folder by its local name, `ethiopia-cbhi-ncd`) resolve the same way here as
+        # they do on the local development machine.
+        working-directory: ethiopia-cbhi-ncd
     steps:
       - name: Check out current branch
         uses: actions/checkout@v5
         with:
           # Fetch full history for artifact branch operations
           fetch-depth: 0
-          # Check out into a `test4`-named directory to match the local dev folder name,
-          # since config/model.csv's data file paths are resolved relative to this name
-          path: test4
+          # Check out into an `ethiopia-cbhi-ncd`-named directory to match the local dev folder
+          # name, since config/model.csv's data file paths are resolved relative to this name
+          path: ethiopia-cbhi-ncd
 
       - name: Set up Node
         uses: actions/setup-node@v4
@@ -60,7 +60,7 @@ jobs:
           #node-version: lts/*
           node-version: 22
           cache: 'npm'
-          cache-dependency-path: test4/package-lock.json
+          cache-dependency-path: ethiopia-cbhi-ncd/package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -115,7 +115,7 @@ jobs:
         if: steps.check-deploy.outputs.products_updated == 'true'
         uses: actions/upload-pages-artifact@v4
         with:
-          path: './test4/artifacts'
+          path: './ethiopia-cbhi-ncd/artifacts'
 
       - name: Deploy to GitHub Pages
         if: steps.check-deploy.outputs.products_updated == 'true'
