@@ -17,7 +17,9 @@ function formatValue(value: number): string {
   } else if (input.spec.format === 'delay_months') {
     // The underlying value is a fractional change relative to a 12-month baseline
     // delay (e.g. -0.5 to +0.5); show it as an absolute, intuitive month count.
-    return `${Math.round(12 * (1 + value))}`
+    // Higher slider values mean a stronger delay-reduction strategy, so they map
+    // to a shorter delay.
+    return `${Math.round(12 * (1 - value))}`
   } else if (input.spec.format === '.2f') {
     return value.toFixed(2)
   } else {

@@ -1,2 +1,2 @@
 graph default min time,graph default max time,model dat files,bundle listing,custom constants,custom lookups,custom outputs
-2017,2028,ethiopia-cbhi-ncd/model/DATA.dat;ethiopia-cbhi-ncd/model/Parameters.dat,FALSE,FALSE,FALSE,FALSE
+2017,2028,ethiopia-cbhi-ncd/model/DATA.dat,FALSE,FALSE,FALSE,FALSE

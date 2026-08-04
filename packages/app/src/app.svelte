@@ -82,7 +82,7 @@ $: if (viewModel && sliderValuesStore && $sliderValuesStore) {
       const rawValue = $sliderValuesStore[i]
       // Log the delay lever in the same absolute-months units shown in the UI,
       // rather than the underlying -0.5..0.5 fractional-change value.
-      leverSnapshot[logKey] = logKey === 'delay_months' ? Math.round(12 * (1 + rawValue)) : rawValue
+      leverSnapshot[logKey] = logKey === 'delay_months' ? Math.round(12 * (1 - rawValue)) : rawValue
     }
   })
   scheduleUsageSnapshot({
