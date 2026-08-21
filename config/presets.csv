@@ -1,8 +1,8 @@
-preset name,enrollment strategy strength,fee waiver strategy strength,delay reduction strategy strength,reimbursement strategy strength,provider strategy strength,restock strategy strength,screen strategy strength
-a) More coverage,3,3,0,0,0,0,0
-b) Care capacity investment,0,0,0,0,0.6,0.6,0
-c) Reimbursement reform,0,0,-0.3,0.5,0,0,0
-d) Screening expansion,0,0,0,0,0,0,0.6
-Combine a + c,3,3,-0.3,0.5,0,0,0
-Combine b + c,0,0,-0.3,0.5,0.6,0.6,0
-Combine a + d,3,3,0,0,0,0,0.6
+preset name,enrollment strategy strength,fee waiver strategy strength,delay reduction strategy strength,reimbursement strategy strength,screen strategy strength,provider number strategy strength,provider strategy strength,restock strategy strength,unutilized revenue strategy strength
+1) Coverage,1,1,0,0,0,0,0,0,0
+2) Reimbursement,0,0,0.5,0.33,0,0,0,0,0
+3) Screening,0,0,0,0,1,0,0,0,0
+4) Providers,0,0,0,0,0,0.5,0.23,0,0
+5) Medicines,0,0,0,0,0,0,0,1,0.5
+Providers + screening,0,0,0,0,1,0.5,0.23,0,0
+All five,1,1,0.5,0.33,1,0.5,0.23,1,0.5

@@ -1,7 +1,6 @@
 step,caption
-1,"The model has two parallel sub-models, one for hypertension (HTN) and one for diabetes (DIA), each following the same structure shown in the steps below."
-2,"Households move between being eligible-but-not-enrolled in CBHI, enrolled as CBHI beneficiaries, or fee-waivered. Separately, people at risk of the condition become an untreated NCD population once identified."
-3,"Enrolled and fee-waivered households gain health insurance coverage. Facilities earn internal revenue from user fees and reimbursement, at a rate set by the reimbursement approval rate, and untreated cases can become treated NCD."
-4,"CBHI premiums and reimbursement requests from insured households generate CBHI revenue, which in turn affects the reimbursement approval rate paid to facilities."
-5,"Screening identifies people at risk of the condition, and health care utilization together with care capacity determine how many untreated cases become treated."
-6,"Care capacity is further shaped by essential medication availability, funded by public drug funds, and by the number of health care providers, completing the full model structure."
+1,"Two parallel sub-models, one for hypertension and one for diabetes, share the same structure. Households move between being eligible but not enrolled in CBHI, enrolled, or fee-waivered, while people at risk can develop an NCD and untreated patients can start or stop treatment."
+2,Health facilities earn revenue from user fees paid by uninsured patients and from reimbursement paid for insured patients. Expenditures draw that revenue back down.
+3,"CBHI premiums from enrolled households build the CBHI fund. How much of it reaches facilities depends on the share of claims approved and on how long payment takes, both decision levers."
+4,"Insurance coverage raises screening, which finds undetected cases and generates visits. Whether those cases start and stay on treatment depends on NCD care availability, set by how much provider time is free relative to total demand."
+5,"Essential medicines availability completes the picture, funded by public drug funds and by facility revenue. Together with provider capacity, it determines whether treatment can be started and sustained."

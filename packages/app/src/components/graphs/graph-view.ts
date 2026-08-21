@@ -263,6 +263,13 @@ function createLineChartJsData(spec: GraphSpec): ChartData {
     // easier to visually distinguish it from the (scenario) line(s) being compared
     chartDataset.borderWidth = spec.datasets[varIndex].externalSourceName === 'Ref' ? 1.5 : 3
 
+    // The user-pinned reference is drawn dashed so it reads as a saved comparison
+    // rather than as another live series.
+    if (spec.datasets[varIndex].externalSourceName === 'Pinned') {
+      chartDataset.borderDash = [7, 4]
+      chartDataset.borderWidth = 2
+    }
+
     chartDataset.pointHitRadius = 3
     chartDataset.pointHoverRadius = 0
 

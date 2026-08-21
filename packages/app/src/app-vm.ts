@@ -1,10 +1,10 @@
 import { derived, get, writable, type Readable } from 'svelte/store'
 
-import type { Config as CoreConfig, GraphSpec, Point, Series, SourceName } from '@core'
+import type { Config as CoreConfig, GraphDatasetSpec, GraphSpec, Point, Series, SourceName } from '@core'
 
 import { _ } from '@shared/i18n'
 
-import { type AppModel, type AppModelContext, createAppModel } from '@model/app-model'
+import { type AppModel, type AppModelContext, createAppModel, PINNED_SOURCE_NAME } from '@model/app-model'
 import type { WritableSliderInput } from '@model/app-model-inputs'
 
 import inputsCsvRaw from '../../../config/inputs.csv?raw'
@@ -164,7 +164,14 @@ export class AppViewModel {
   public readonly headlineStats: Readable<HeadlineStat[]>
   public readonly presets: PolicyPreset[] = POLICY_PRESETS
 
+  /** True when the user has pinned a scenario as a dashed reference line. */
+  public readonly pinned: Readable<boolean>
+
+  private readonly appModel: AppModel
+
   constructor(appModel: AppModel) {
+    this.appModel = appModel
+    this.pinned = appModel.pinned
     const graphSpecs = [...appModel.coreConfig.graphs.values()]
     const graphViewModels = graphSpecs.map(graphSpec => createGraphViewModel(appModel, graphSpec))
 
@@ -225,6 +232,16 @@ export class AppViewModel {
       addScenario(sourceName, context)
     }
     this.scenarios = writable(scenarios)
+  }
+
+  /** Pin the current scenario so graphs show it as a dashed reference line. */
+  pinCurrent(): void {
+    this.appModel.pinCurrent()
+  }
+
+  /** Remove the pinned reference line from the graphs. */
+  clearPinned(): void {
+    this.appModel.clearPinned()
   }
 }
 
@@ -300,6 +317,16 @@ function createGraphViewModel(appModel: AppModel, graphSpec: GraphSpec): GraphVi
   return {
     spec: graphSpec,
     dataChanged: appModel.dataChanged,
+    // Hide the pinned dataset until the user actually pins a scenario. This is
+    // re-evaluated on every data change, and pinning bumps `dataChanged`, so the
+    // dashed line appears and disappears without any extra wiring.
+    getDatasets: () => {
+      const datasets = graphSpec.datasets as GraphDatasetSpec[]
+      if (appModel.hasPinnedData()) {
+        return datasets
+      }
+      return datasets.filter(d => d.externalSourceName !== PINNED_SOURCE_NAME)
+    },
     getSeriesForVar: (varId, sourceName) => {
       return appModel.getSeriesForVar(sourceName, varId)
     },

@@ -11,3 +11,23 @@ packages/core.zip
 .claude/settings.local.json
 CLAUDE.md
 slides-and-writing
+
+# Vensim calibration output and analysis artifacts. These drive the manuscript
+# figures and the local calibration workflow, not the published dashboard.
+*.out
+*.out.prev
+*.xlsx
+*.Rmd
+update_inputs_from_out.py
+Slide show/
+fig_lines.svg
+fig_heat.svg
+res.json
+
+# Local backups made while editing config files
+*.bak
+*.prepin
+*.v33bak
+
+# Claude Code working directory
+.claude/

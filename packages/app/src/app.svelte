@@ -26,9 +26,13 @@ const LEVER_LOG_KEYS: Record<string, string> = {
   'fee waiver strategy strength': 'fee_waiver',
   'delay reduction strategy strength': 'delay_months',
   'reimbursement strategy strength': 'reimbursement',
-  'provider strategy strength': 'provider',
+  'screen strategy strength': 'screening',
+  // 'provider strategy strength' drives provider productivity, while provider count
+  // is a separate lever; keep them distinct in the log rather than reusing 'provider'.
+  'provider number strategy strength': 'provider_count',
+  'provider strategy strength': 'provider_productivity',
   'restock strategy strength': 'restock',
-  'screen strategy strength': 'screening'
+  'unutilized revenue strategy strength': 'unutilized_revenue'
 }
 
 export let coreConfig: CoreConfig
@@ -49,6 +53,7 @@ const calendarSelector: SelectorViewModel = {
 $: scenarios = viewModel?.scenarios
 $: scenario = $scenarios?.[0]
 $: presets = viewModel?.presets ?? []
+$: pinned = viewModel?.pinned
 $: headlineStats = viewModel?.headlineStats
 $: stats = $headlineStats ?? []
 $: yearOffset = $calendarMode === 'gregorian' ? ETHIOPIAN_TO_GREGORIAN_OFFSET : 0
@@ -62,7 +67,7 @@ $: statTexts = stats.map(stat => {
 $: primaryGraphContainers = viewModel?.graphContainers.slice(0, 2) ?? []
 $: otherGraphContainers = viewModel?.graphContainers.slice(2, 4) ?? []
 
-// Track dashboard usage (lever settings + which "Other Projections" graphs are
+// Track dashboard usage (lever settings + which "Intermediate Outcomes" graphs are
 // selected) for the two selectable graph slots, so changes to either trigger a
 // usage-log snapshot below.
 $: otherContainer0 = otherGraphContainers[0]
@@ -138,7 +143,6 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
             {#if scenario.sliders.length > 0}
               <div class="scenario-header">
                 <div class="nudge-text">👉 Move a slider and watch the projections respond</div>
-                <button on:click={() => scenario.reset()}>Reset</button>
               </div>
               {#if scenario.name}
                 <div class="scenario-name">{scenario.name}</div>
@@ -160,6 +164,20 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
             {/if}
           </div>
         {/each}
+        <div class="pin-row">
+          <button type="button" class="pin-button" on:click={() => viewModel.pinCurrent()}>
+            📌 Pin current as reference
+          </button>
+          <button type="button" class="pin-button" on:click={() => viewModel.clearPinned()} disabled={!$pinned}>
+            Clear reference
+          </button>
+          {#if scenario}
+            <button type="button" class="pin-button reset-button" on:click={() => scenario.reset()}>Reset</button>
+          {/if}
+        </div>
+        {#if $pinned}
+          <div class="pin-hint">The dashed purple line on each graph is your pinned scenario.</div>
+        {/if}
         <div class="action-links">
           <button type="button" class="about-link" on:click={() => (showHowToUse = true)}>
             <span class="about-link-icon">💡</span> <span class="about-link-text">Get the most out of this dashboard</span>
@@ -172,6 +190,30 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 
       <div class="graphs-panel">
         {#if primaryGraphContainers.length > 0}
+          <!--
+            Intermediate outcomes sit above primary outcomes so the panel reads top to
+            bottom as mechanism then result, matching how the model behaves: coverage,
+            capacity, and medicine supply shift soon after a lever moves, while
+            treatment accumulates over the following years.
+          -->
+          <div class="graph-section">
+            <div class="graph-section-title-row">
+              <div class="graph-section-title">Intermediate Outcomes</div>
+              <div class="graph-section-hint">(select an outcome from the list below)</div>
+            </div>
+            <div class="graph-row">
+              {#each otherGraphContainers as graphContainer, i}
+                <div class="selectable-graph-container">
+                  <SelectableGraph
+                    viewModel={graphContainer}
+                    showSelector={true}
+                    statText={statTexts[i + primaryGraphContainers.length]}
+                    statPositive={stats[i + primaryGraphContainers.length]?.positive ?? true}
+                  />
+                </div>
+              {/each}
+            </div>
+          </div>
           <div class="graph-section">
             <div class="graph-section-title-row">
               <div class="graph-section-title">Primary Outcomes</div>
@@ -200,24 +242,6 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
                     showSelector={false}
                     statText={statTexts[i]}
                     statPositive={stats[i]?.positive ?? true}
-                  />
-                </div>
-              {/each}
-            </div>
-          </div>
-          <div class="graph-section">
-            <div class="graph-section-title-row">
-              <div class="graph-section-title">Other Projections</div>
-              <div class="graph-section-hint">(select an outcome from the list below)</div>
-            </div>
-            <div class="graph-row">
-              {#each otherGraphContainers as graphContainer, i}
-                <div class="selectable-graph-container">
-                  <SelectableGraph
-                    viewModel={graphContainer}
-                    showSelector={true}
-                    statText={statTexts[i + primaryGraphContainers.length]}
-                    statPositive={stats[i + primaryGraphContainers.length]?.positive ?? true}
                   />
                 </div>
               {/each}
@@ -293,13 +317,50 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     gap: 8px
     width: 100%
 
+.pin-row
+  display: flex
+  flex-direction: row
+  gap: 8px
+  flex-shrink: 0
+  margin-top: 6px
+
+.pin-button
+  padding: 4px 11px
+  font-size: .85em
+  font-weight: 600
+  color: #1f3a4d
+  background-color: #fff
+  border: 1px solid #9db2c2
+  border-radius: 6px
+  cursor: pointer
+  transition: background-color .15s ease, border-color .15s ease
+
+  &:hover:not(:disabled)
+    background-color: #e3eaf0
+    border-color: #5c6b77
+
+  &:disabled
+    opacity: .45
+    cursor: default
+
+// Grouped with the pin controls, but pushed right and visually separated so it
+// reads as "undo the levers" rather than as a third pin action.
+.reset-button
+  margin-left: auto
+
+.pin-hint
+  font-size: .8em
+  color: #5c6b77
+  margin-top: 3px
+  flex-shrink: 0
+
 .action-links
   display: flex
   flex-direction: row
   align-items: center
   gap: 16px
   flex-wrap: wrap
-  margin-top: 4px
+  margin-top: 14px
   flex-shrink: 0
 
   @media (max-width: 800px)
@@ -455,7 +516,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
 .sliders-panel
   display: flex
   flex-direction: column
-  gap: 4px
+  gap: 3px
   width: 460px
   flex-shrink: 0
   min-height: 0
@@ -467,33 +528,35 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
     overflow-y: visible
 
 .sliders-panel-title
-  font-size: 1rem
+  font-size: .95rem
   font-weight: 700
   color: #2c5f8a
   flex-shrink: 0
+  // Breathing room below the Example Scenarios divider above it.
+  margin-top: 8px
 
 .presets-section
   display: flex
   flex-direction: column
-  gap: 4px
+  gap: 3px
   flex-shrink: 0
-  padding-bottom: 10px
+  padding-bottom: 6px
   border-bottom: 1px solid #c3d0da
 
 .presets-title
-  font-size: 1rem
+  font-size: .95rem
   font-weight: 700
   color: #2c5f8a
 
 .preset-row
   display: flex
   flex-wrap: wrap
-  gap: 6px
+  gap: 5px
   flex-shrink: 0
 
 .preset-button
-  padding: 4px 10px
-  font-size: .78em
+  padding: 3px 9px
+  font-size: .76em
   font-weight: 400
   color: #1f3a4d
   background-color: #fff
@@ -510,12 +573,12 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   display: flex
   flex-direction: column
   flex-shrink: 0
-  padding: 6px 16px
+  padding: 5px 12px
   border-radius: 10px
   background-color: #eef2f6
 
 .slider-section
-  margin-top: 6px
+  margin-top: 4px
 
   &:first-child
     margin-top: 0
@@ -524,17 +587,15 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   font-weight: 700
   font-size: .9em
   color: #1f3a4d
-  padding-bottom: 4px
-  margin-bottom: 2px
+  padding-bottom: 2px
+  margin-bottom: 1px
   border-bottom: 1px solid #c3d0da
 
 .scenario-header
   display: flex
   flex-direction: row
-  justify-content: space-between
   align-items: center
-  gap: 10px
-  margin-bottom: 4px
+  margin-bottom: 3px
 
 .nudge-text
   font-size: .85em
@@ -548,7 +609,7 @@ const viewReady = createAppViewModel(coreConfig).then(result => {
   font-weight: 700
 
 .scenario-header :global(button)
-  padding: 5px 12px
+  padding: 4px 11px
   font-size: .85em
   font-weight: 600
   color: #1f3a4d

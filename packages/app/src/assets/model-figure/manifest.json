@@ -1,37 +1,11 @@
 {
-    "viewBoxWidth":  1128.55,
-    "viewBoxHeight":  1036.2399999999998,
-    "defsFile":  "defs.svg",
-    "steps":  [
-                  {
-                      "step":  1,
-                      "file":  "step-1.svg",
-                      "elementCount":  6
-                  },
-                  {
-                      "step":  2,
-                      "file":  "step-2.svg",
-                      "elementCount":  60
-                  },
-                  {
-                      "step":  3,
-                      "file":  "step-3.svg",
-                      "elementCount":  120
-                  },
-                  {
-                      "step":  4,
-                      "file":  "step-4.svg",
-                      "elementCount":  139
-                  },
-                  {
-                      "step":  5,
-                      "file":  "step-5.svg",
-                      "elementCount":  220
-                  },
-                  {
-                      "step":  6,
-                      "file":  "step-6.svg",
-                      "elementCount":  254
-                  }
-              ]
+  "viewBoxWidth": 1000,
+  "viewBoxHeight": 1000,
+  "steps": [
+    { "step": 1, "file": "step-1.svg" },
+    { "step": 2, "file": "step-2.svg" },
+    { "step": 3, "file": "step-3.svg" },
+    { "step": 4, "file": "step-4.svg" },
+    { "step": 5, "file": "step-5.svg" }
+  ]
 }

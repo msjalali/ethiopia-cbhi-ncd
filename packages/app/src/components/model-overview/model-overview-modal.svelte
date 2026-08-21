@@ -1,14 +1,7 @@
 <!-- SCRIPT -->
 <script lang="ts">
 import manifest from '../../assets/model-figure/manifest.json'
-import defsSvgRaw from '../../assets/model-figure/defs.svg?raw'
 import captionsCsvRaw from '../../../../../config/model-figure-captions.csv?raw'
-
-// The shared glyph <defs> block is stored once (defs.svg) rather than duplicated in
-// every step file. Extract just its inner content so it can be rendered once, and
-// <use> references in each step SVG resolve against it (SVG <use> resolves ids
-// anywhere in the same document, not just within its own <svg> element).
-const sharedDefsInner = defsSvgRaw.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '')
 
 export let open = false
 
@@ -104,19 +97,29 @@ function onKeydown(e: KeyboardEvent) {
           <p>
             This dashboard is built on a <strong>system dynamics model</strong> developed in collaboration with
             local researchers in the Amhara region of Ethiopia. It captures how community-based health insurance
-            (CBHI), health facility financing, and screening interact over time to shape hypertension and diabetes
-            treatment outcomes.
+            (CBHI), health facility financing, screening, provider capacity, and medicine supply interact over time
+            to shape hypertension and diabetes treatment.
           </p>
-          <p>Click <strong>Next</strong> to see how the model&rsquo;s structure is built up, piece by piece.</p>
+          <p>
+            The nine sliders in this dashboard are the model&rsquo;s <strong>decision levers</strong>, marked with a
+            star in the figure. Click <strong>Next</strong> to see how the structure is built up, piece by piece.
+          </p>
         </div>
       {:else}
+        <!--
+          Each step SVG is self-contained: it carries its own <defs> block of glyph
+          outlines, and every frame reuses the same ids. Rendering more than one at a
+          time would let <use> references resolve against whichever copy came first in
+          the document, so exactly one frame is mounted at a time. All frames share an
+          identical 1000x1000 viewBox, and the stage is a fixed square, so swapping
+          frames cannot shift anything on screen.
+        -->
         <div class="figure-stage" style="aspect-ratio: {viewBoxWidth} / {viewBoxHeight}">
-          <svg class="shared-defs" aria-hidden="true">{@html sharedDefsInner}</svg>
-          {#each steps as s (s.step)}
-            <div class="figure-layer" class:visible={s.step === currentStep?.step}>
-              {@html s.svg}
+          {#key currentStep?.step}
+            <div class="figure-layer">
+              {@html currentStep?.svg ?? ''}
             </div>
-          {/each}
+          {/key}
         </div>
 
         <div class="caption">{caption}</div>
@@ -209,38 +212,33 @@ function onKeydown(e: KeyboardEvent) {
   width: 100%
   flex-shrink: 1
   min-height: 0
-  overflow: auto
-  background-color: #fafbfc
+  overflow: hidden
+  background-color: #fff
   border: 1px solid #e0e6ea
   border-radius: 8px
-
-.shared-defs
-  position: absolute
-  width: 0
-  height: 0
-  overflow: hidden
 
 .figure-layer
   position: absolute
   inset: 0
-  opacity: 0
-  transition: opacity .35s ease
-  pointer-events: none
-
-  &.visible
-    opacity: 1
-    pointer-events: auto
+  animation: fade-in .3s ease
 
   :global(svg)
     width: 100%
     height: 100%
     display: block
 
+@keyframes fade-in
+  from
+    opacity: 0
+  to
+    opacity: 1
+
+// Fixed height so the footer buttons stay put as caption length varies between steps.
 .caption
   font-size: .9em
   color: #3d4a54
   line-height: 1.45
-  min-height: 2.6em
+  min-height: 5.8em
   flex-shrink: 0
 
 .modal-footer

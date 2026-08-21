@@ -58,7 +58,7 @@ function formatValue(value: number): string {
 <!-- STYLE -->
 <style lang="sass">
 .input-row-container
-  margin: .15rem 0
+  margin: .06rem 0
 
 .spacer
   flex: 1
@@ -67,6 +67,7 @@ function formatValue(value: number): string {
   display: flex
   align-items: center
   gap: .3rem
+  line-height: 1.25
 
 .label
   font-weight: normal

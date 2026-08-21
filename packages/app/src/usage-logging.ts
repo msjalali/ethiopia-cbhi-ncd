@@ -1,4 +1,4 @@
-// Logs anonymous usage snapshots (lever settings + which "Other Projections"
+// Logs anonymous usage snapshots (lever settings + which "Intermediate Outcomes"
 // graphs are selected) to a Google Sheet, via a Google Apps Script Web App
 // endpoint, so we can see how people are actually using the dashboard.
 const LOG_ENDPOINT =
@@ -22,7 +22,7 @@ let isFirstSnapshot = true
 
 /**
  * Schedule a usage-log row for the given snapshot of dashboard state (lever
- * values, selected "Other Projections" graphs, calendar mode, etc). Debounces
+ * values, selected "Intermediate Outcomes" graphs, calendar mode, etc). Debounces
  * by `DEBOUNCE_MS` so a burst of slider drags collapses into a single row,
  * skips the very first (unmodified, on-load) snapshot, and skips re-sending a
  * snapshot identical to the last one actually sent (e.g. if a slider is moved
